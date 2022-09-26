@@ -84,8 +84,9 @@ drwxrwxrwx   - root hadoop          0 2022-09-27 00:28 hdfs://hdfsCluster/apps/h
 备注：Iceberg支持的时间分区目前和将来只支持UTC,UTC是国际时，UTC+8就是国际时加八小时，是东八区时间,也就是北京时间，所以我们看到上面分区时间与数据时间不一致。
 除了以上常用的时间隐藏分区外，Iceberg还支持bucket(N,col)分区，这种分区方式可以按照某列的hash值与N取余决定数据去往的分区。truncate(L,col)，这种隐藏分区可以将字符串列截取L长度，相同的数据会被分到相同分区中。
 **Partition Transforms **
-|Transform name|	Description	|Source types|	Result type|
-|：------------|：---------------|：---------|：-------------|
+
+|Transform name|Description	|Source types|	Result type|
+|:-------|:--------|:-----|:---------|
 |identity|	Source value, unmodified|	Any	|Source type|
 |bucket[N]|	Hash of value, mod N (see below)|	int, long, decimal, date, time, timestamp, timestamptz, string, uuid, fixed, binary|	int|
 |truncate[W]|	Value truncated to width W (see below)|	int, long, decimal, string	|Source type|
