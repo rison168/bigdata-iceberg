@@ -541,7 +541,7 @@ alter修改分区，包括添加分区和删除分区，这种分区操作在spark3.x之后被支持，
 Found 2 items
 drwxrwxrwx   - root hadoop          0 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/data
 drwxrwxrwx   - root hadoop          0 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/metadata
-^[[A[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/alter_partition_tbl/data
+[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/alter_partition_tbl/data
 Found 6 items
 -rw-r--r--   3 root hadoop       1172 2022-09-27 12:57 /apps/hive/warehouse/alter_partition_tbl/data/00000-23-4aea357a-f81a-4ba6-92c2-ca440dc36864-00001.parquet
 -rw-r--r--   3 root hadoop       1172 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/data/00000-23-e8b8f0ab-9843-4d88-80b2-91fad43fa001-00001.parquet
@@ -610,8 +610,32 @@ Found 2 items
 ```
 我们发现，删除表的loc分区、years(ts)分区之后,目录变成**loc=null/ts_year=null**，后面的新数据将保存在该路径下。
 
+### 1.4 DataFrame API加载Iceberg中的数据
+Spark 操作Iceberg 不仅可以通过SQL的方式查询Iceberg数据，还可以使用dataFrame的方式加载到Iceberg表中，
+可以通过spark.table(表名)或者spark.read.format(iceberg).load(iceberg data path)来加载对应的表数据：
+```scala
+  spark.sql(
+      """
+        |create table if not exists  hive_catalog.default.iceberg_test_tbl(id int, name string, age int) using iceberg
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.iceberg_test_tbl
+        |values
+        |(1,'rison', 18),
+        |(2, 'zhangsan', 20)
+        |""".stripMargin
+    )
+    // 1.1 sql的方式读取iceberg的数据
+    spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
 
+    // 1.2 dataframe的方式读取iceberg的数据
+    spark.table("hive_catalog.default.iceberg_test_tbl").show()
+    spark.read.format("iceberg")
+      .load("hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl").show()
 
+```
 
 
 

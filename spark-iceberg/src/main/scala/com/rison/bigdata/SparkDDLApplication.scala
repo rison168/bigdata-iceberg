@@ -22,7 +22,7 @@ object SparkDDLApplication {
       .config("spark.sql.catalog.hadoop_catalog", "org.apache.iceberg.spark.SparkCatalog")
       .config("spark.sql.catalog.hadoop_catalog.type", "hadoop")
       .config("spark.sql.catalog.hadoop_catalog.warehouse", "hdfs://hdfsCluster/apps/hive/warehouse")
-      //修改分区属性
+      //修改分区属性需要
       .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")
       .getOrCreate()
 
