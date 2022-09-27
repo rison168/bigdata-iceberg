@@ -22,6 +22,8 @@ object SparkDDLApplication {
       .config("spark.sql.catalog.hadoop_catalog", "org.apache.iceberg.spark.SparkCatalog")
       .config("spark.sql.catalog.hadoop_catalog.type", "hadoop")
       .config("spark.sql.catalog.hadoop_catalog.warehouse", "hdfs://hdfsCluster/apps/hive/warehouse")
+      //修改分区属性
+      .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")
       .getOrCreate()
 
 
@@ -33,6 +35,12 @@ object SparkDDLApplication {
         |name string,
         |age int
         |) using iceberg
+        |""".stripMargin
+    )
+
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.normal_tbl values (1,'rison',18)
         |""".stripMargin
     )
 
@@ -182,6 +190,183 @@ object SparkDDLApplication {
         |select * from hive_catalog.default.partition_hour_tbl;
         |""".stripMargin
     ).show
+
+    //TODO 6. CREATE TAEBL ...  AS SELECT 创建表并插入数据
+    spark.sql(
+      """
+        |create table if not exists hive_catalog.default.as_select_tbl using iceberg as select id, name, age from hive_catalog.default.normal_tbl
+        |""".stripMargin)
+
+    spark.sql(
+      """
+        |select * from  hive_catalog.default.as_select_tbl
+        |""".stripMargin
+    ).show()
+
+    //TODO 7. DROP TABLE 删除表
+    spark.sql(
+      """
+        |drop table hive_catalog.default.normal_tbl
+        |""".stripMargin
+    )
+
+    //TODO 8. ALTER TABLE 修改表
+    spark.sql(
+      """
+        |create table if not exists hive_catalog.default.alter_tbl
+        |(id int,
+        |name string,
+        |age int
+        |) using iceberg
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.alter_tbl values (1,'rison',18),(2,'zhagnsan',20)
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |select * from  hive_catalog.default.alter_tbl
+        |""".stripMargin
+    ).show()
+    //添加列
+    spark.sql(
+      """
+        |alter table hive_catalog.default.alter_tbl add column gender string,loc string
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |select * from  hive_catalog.default.alter_tbl
+        |""".stripMargin
+    ).show()
+    //删除列
+    spark.sql(
+      """
+        |alter table hive_catalog.default.alter_tbl drop column age
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |select * from  hive_catalog.default.alter_tbl
+        |""".stripMargin
+    ).show()
+    spark.sql(
+      """
+        |alter table hive_catalog.default.alter_tbl drop column gender,loc
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |alter table hive_catalog.default.alter_tbl add column age int
+        |""".stripMargin
+    )
+    //重命名列
+    spark.sql(
+      """
+        |alter table hive_catalog.default.alter_tbl rename column id to id_rename
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |select * from  hive_catalog.default.alter_tbl
+        |""".stripMargin
+    ).show()
+    spark.sql(
+      """
+        |alter table hive_catalog.default.alter_tbl rename column id_rename to id
+        |""".stripMargin
+    )
+    //TODO 9. ALTER TABLE 修改分区
+    //创建分区表
+
+    spark.sql(
+      """
+        |create table if not exists hive_catalog.default.alter_partition_tbl
+        |(id int,
+        |name string,
+        |loc string,
+        |ts timestamp
+        |) using iceberg
+        |
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.alter_partition_tbl
+        |values
+        |(1,'rison','beijing',cast(1639920630 as timestamp)),
+        |(2,'zhangsan','guangzhou',cast(1576843830 as timestamp))
+        |""".stripMargin
+    )
+    //添加loc为分区
+    spark.sql(
+      """
+        |alter table hive_catalog.default.alter_partition_tbl add partition field loc
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.alter_partition_tbl
+        |values
+        |(11,'rison-loc','beijing',cast(1639920630 as timestamp)),
+        |(21,'zhangsan-loc','guangzhou',cast(1576843830 as timestamp))
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |select * from hive_catalog.default.alter_partition_tbl
+        |""".stripMargin
+    ).show()
+    //添加years(ts)为分区
+    spark.sql(
+      """
+        |alter table hive_catalog.default.alter_partition_tbl add partition field years(ts)
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.alter_partition_tbl
+        |values
+        |(111,'riso-ts','beijing',cast(1639920630 as timestamp)),
+        |(222,'zhangsan-ts','guangzhou',cast(1576843830 as timestamp))
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |select * from hive_catalog.default.alter_partition_tbl
+        |""".stripMargin
+    ).show()
+
+    //删除分区
+    spark.sql(
+      """
+        |alter table hive_catalog.default.alter_partition_tbl drop partition field years(ts)
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |alter table hive_catalog.default.alter_partition_tbl drop partition field loc
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.alter_partition_tbl
+        |values
+        |(1111,'riso-drop','beijing',cast(1639920630 as timestamp)),
+        |(2222,'zhangsan-drop','guangzhou',cast(1576843830 as timestamp))
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |select * from hive_catalog.default.alter_partition_tbl
+        |""".stripMargin
+    ).show()
+
+
+
+
 
     spark.close();
   }

@@ -300,4 +300,326 @@ drwxrwxrwx   - root hadoop          0 2022-09-27 09:53 /apps/hive/warehouse/part
 |hour|	Extract a timestamp hour, as hours from 1970-01-01 00:00:00	timestamp, timestamptz|	int|
 |void|	Always produces null|	Any	|Source type or int|
 
+#### 1.3.2 CREATE TABLE ...  AS SELECT
+Iceberg 支持 ‘**create table ... as select**’语法，可以从查询语句中创建一张表，并插入对应的数据
+
+```scala
+   spark.sql(
+        """
+          |create table hive_catalog.default.as_select_tbl using iceberg as select id, name, age from hive_catalog.default.normal_tbl
+          |""".stripMargin)
+  
+      spark.sql(
+        """
+          |select * from  hive_catalog.default.as_select_tbl
+          |""".stripMargin
+      ).show()
+```
+
+```shell script
++---+-----+---+
+| id| name|age|
++---+-----+---+
+|  1|rison| 18|
+|  1|rison| 18|
++---+-----+---+
+[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/as_select_tbl/data
+Found 2 items
+-rw-r--r--   3 root hadoop       1050 2022-09-27 10:39 /apps/hive/warehouse/as_select_tbl/data/00000-16-61e55873-abc9-4c99-8bed-7b527e9cba40-00001.parquet
+-rw-r--r--   3 root hadoop        889 2022-09-27 10:42 /apps/hive/warehouse/as_select_tbl/data/00000-16-65e7bfb1-5898-47f0-911d-853a32ca88ec-00001.parquet
+[root@tbds-192-168-0-37 ~]# 
+
+```
+#### 1.3.3 DROP TABLE 删表
+删除表时，目录依然存在，但是data目录下的数据文件被删除了。
+```scala
+    spark.sql(
+      """
+        |drop table hive_catalog.default.normal_tbl
+        |""".stripMargin
+    )
+
+```
+```
+[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/normal_tbl/
+Found 2 items
+drwxrwxrwx   - root hadoop          0 2022-09-27 10:42 /apps/hive/warehouse/normal_tbl/data
+drwxrwxrwx   - root hadoop          0 2022-09-27 10:42 /apps/hive/warehouse/normal_tbl/metadata
+[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/normal_tbl/data
+[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/normal_tbl/metadata
+Found 4 items
+-rw-r--r--   3 root hadoop       1372 2022-09-27 00:27 /apps/hive/warehouse/normal_tbl/metadata/00000-88998725-3f32-4d3b-ad10-06d8b2c1a4ec.metadata.json
+-rw-r--r--   3 root hadoop       1372 2022-09-27 10:37 /apps/hive/warehouse/normal_tbl/metadata/00000-cf525b63-ed0d-4abb-b791-d285113c3876.metadata.json
+-rw-r--r--   3 root hadoop       1372 2022-09-27 10:42 /apps/hive/warehouse/normal_tbl/metadata/00000-df84e452-47eb-4fa0-926d-c1175bf33269.metadata.json
+-rw-r--r--   3 root hadoop       2355 2022-09-27 10:37 /apps/hive/warehouse/normal_tbl/metadata/00001-716da976-1762-4ae4-8d3a-2d9828eb0870.metadata.json
+[root@tbds-192-168-0-37 ~]# 
+```
+
+#### 1.3.3 ALTER TABLE 修改表
+Iceberg的 alter 操作在Spark3.x版本中支持，alter一般包含如下操作：
+* 添加、删除列
+**添加列：ALTER TABLE ... ADD COLUMN**
+**删除列：ALTER TABLE ... DROP COLUMN**
+```scala
+  spark.sql(
+      """
+        |create table if not exists hive_catalog.default.alter_tbl
+        |(id int,
+        |name string,
+        |age int
+        |) using iceberg
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.alter_tbl values (1,'rison',18),(2,'zhagnsan',20)
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |select * from  hive_catalog.default.alter_tbl
+        |""".stripMargin
+    ).show()
+    //添加列
+    spark.sql(
+      """
+        |alter table hive_catalog.default.alter_tbl add column gender string,loc string
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |select * from  hive_catalog.default.alter_tbl
+        |""".stripMargin
+    ).show()
+    //删除列
+    spark.sql(
+      """
+        |alter table hive_catalog.default.alter_tbl drop column age
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |select * from  hive_catalog.default.alter_tbl
+        |""".stripMargin
+    ).show()
+```
+```
+## 原始表
++---+--------+---+
+| id|    name|age|
++---+--------+---+
+|  1|   rison| 18|
+|  2|zhagnsan| 20|
++---+--------+---+
+## 添加 gender/loc 列
++---+--------+---+------+----+
+| id|    name|age|gender| loc|
++---+--------+---+------+----+
+|  1|   rison| 18|  null|null|
+|  2|zhagnsan| 20|  null|null|
++---+--------+---+------+----+
+## 删除age列
++---+--------+------+----+
+| id|    name|gender| loc|
++---+--------+------+----+
+|  1|   rison|  null|null|
+|  2|zhagnsan|  null|null|
++---+--------+------+----+
+
+```
+* 重命名列
+**重命名列：ALTER TABLE ... RENAME COLUMN**
+
+```scala
+ spark.sql(
+      """
+        |alter table hive_catalog.default.alter_tbl rename column id to id_rename
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |select * from  hive_catalog.default.alter_tbl
+        |""".stripMargin
+    ).show()
+```
+
+```
+## 原始表
++---+--------+----+
+| id|    name| age|
++---+--------+----+
+|  1|   rison|null|
+|  2|zhagnsan|null|
+|  1|   rison|  18|
+|  2|zhagnsan|  20|
+|  1|   rison|null|
+|  2|zhagnsan|null|
++---+--------+----+
+## 修改id为id_rename
++---------+--------+----+
+|id_rename|    name| age|
++---------+--------+----+
+|        1|   rison|null|
+|        2|zhagnsan|null|
+|        1|   rison|null|
+|        2|zhagnsan|null|
+|        1|   rison|null|
+|        2|zhagnsan|null|
++---------+--------+----+
+
+```
+#### 1.3.4 ALTER TABLE 修改分区
+alter修改分区，包括添加分区和删除分区，这种分区操作在spark3.x之后被支持，
+使用之前必须要添加spark.sql.extensions属性，其值为：org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions
+在添加分区时还支持分区转换，语法如下：
+* 添加分区：ALTER TABLE...ADD PARTITION FIELD
+```scala
+   //创建分区表
+
+    spark.sql(
+      """
+        |create table if not exists hive_catalog.default.alter_partition_tbl
+        |(id int,
+        |name string,
+        |loc string,
+        |ts timestamp
+        |) using iceberg
+        |
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.alter_partition_tbl
+        |values
+        |(1,'rison','beijing',cast(1639920630 as timestamp)),
+        |(2,'zhangsan','guangzhou',cast(1576843830 as timestamp))
+        |""".stripMargin
+    )
+    //添加loc为分区
+    spark.sql(
+      """
+        |alter table hive_catalog.default.alter_partition_tbl add partition field loc
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.alter_partition_tbl
+        |values
+        |(11,'rison_loc','beijing',cast(1639920630 as timestamp)),
+        |(22,'zhangsan_loc','guangzhou',cast(1576843830 as timestamp))
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |select * from hive_catalog.default.alter_partition_tbl
+        |""".stripMargin
+    ).show()
+    //添加years(ts)为分区
+    spark.sql(
+      """
+        |alter table hive_catalog.default.alter_partition_tbl add partition field years(ts)
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.alter_partition_tbl
+        |values
+        |(111,'rison_ts','beijing',cast(1639920630 as timestamp)),
+        |(222,'zhangsan_ts','guangzhou',cast(1576843830 as timestamp))
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |select * from hive_catalog.default.alter_partition_tbl
+        |""".stripMargin
+    ).show()
+
+```
+
+```
+[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/alter_partition_tbl
+Found 2 items
+drwxrwxrwx   - root hadoop          0 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/data
+drwxrwxrwx   - root hadoop          0 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/metadata
+^[[A[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/alter_partition_tbl/data
+Found 6 items
+-rw-r--r--   3 root hadoop       1172 2022-09-27 12:57 /apps/hive/warehouse/alter_partition_tbl/data/00000-23-4aea357a-f81a-4ba6-92c2-ca440dc36864-00001.parquet
+-rw-r--r--   3 root hadoop       1172 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/data/00000-23-e8b8f0ab-9843-4d88-80b2-91fad43fa001-00001.parquet
+-rw-r--r--   3 root hadoop       1207 2022-09-27 12:57 /apps/hive/warehouse/alter_partition_tbl/data/00001-24-2c0f2673-66b2-4c1d-9e08-93afe8e8677e-00001.parquet
+-rw-r--r--   3 root hadoop       1207 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/data/00001-24-a0afdc71-1f3f-4ecb-8fa2-53767c26bcea-00001.parquet
+drwxrwxrwx   - root hadoop          0 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/data/loc=beijing
+drwxrwxrwx   - root hadoop          0 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/data/loc=guangzhou
+[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/alter_partition_tbl/data/loc=beijing
+Found 3 items
+-rw-r--r--   3 root hadoop       1172 2022-09-27 13:00 /apps/hive/warehouse/alter_partition_tbl/data/loc=beijing/00000-23-dd00833b-be14-4514-90c0-73d2a8f75776-00001.parquet
+-rw-r--r--   3 root hadoop       1199 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/data/loc=beijing/00000-25-5502165c-3873-4b19-9c18-fede5f894c19-00001.parquet
+drwxrwxrwx   - root hadoop          0 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/data/loc=beijing/ts_year=2021
+[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/alter_partition_tbl/data/loc=beijing/ts_year=2021
+Found 1 items
+-rw-r--r--   3 root hadoop       1185 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/data/loc=beijing/ts_year=2021/00000-28-fb9efdb4-14e6-49af-8f99-201a81ff3465-00001.parquet
+
+```
+添加分区字段是元数据操作，不会改表现有的表数据，新的数据将使用新分区写入数据，现有数据将继续保留在原有的分区布局中。
+
+* 删除分区：ALTER TABLE...DROP PARTITION FIELD
+
+```scala
+ spark.sql(
+      """
+        |alter table hive_catalog.default.alter_partition_tbl drop partition field years(ts)
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |alter table hive_catalog.default.alter_partition_tbl drop partition field loc
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.alter_partition_tbl
+        |values
+        |(1111,'riso-drop','beijing',cast(1639920630 as timestamp)),
+        |(2222,'zhangsan-drop','guangzhou',cast(1576843830 as timestamp))
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |select * from hive_catalog.default.alter_partition_tbl
+        |""".stripMargin
+    ).show()
+```
+```
+[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/alter_partition_tbl/data/
+Found 7 items
+-rw-r--r--   3 root hadoop       1172 2022-09-27 12:57 /apps/hive/warehouse/alter_partition_tbl/data/00000-23-4aea357a-f81a-4ba6-92c2-ca440dc36864-00001.parquet
+-rw-r--r--   3 root hadoop       1172 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/data/00000-23-e8b8f0ab-9843-4d88-80b2-91fad43fa001-00001.parquet
+-rw-r--r--   3 root hadoop       1207 2022-09-27 12:57 /apps/hive/warehouse/alter_partition_tbl/data/00001-24-2c0f2673-66b2-4c1d-9e08-93afe8e8677e-00001.parquet
+-rw-r--r--   3 root hadoop       1207 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/data/00001-24-a0afdc71-1f3f-4ecb-8fa2-53767c26bcea-00001.parquet
+drwxrwxrwx   - root hadoop          0 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/data/loc=beijing
+drwxrwxrwx   - root hadoop          0 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/data/loc=guangzhou
+drwxrwxrwx   - root hadoop          0 2022-09-27 13:11 /apps/hive/warehouse/alter_partition_tbl/data/loc=null
+[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/alter_partition_tbl/data/loc=null
+Found 1 items
+drwxrwxrwx   - root hadoop          0 2022-09-27 13:11 /apps/hive/warehouse/alter_partition_tbl/data/loc=null/ts_year=null
+[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/alter_partition_tbl/data/loc=null/ts_year=null
+Found 2 items
+-rw-r--r--   3 root hadoop       1200 2022-09-27 13:11 /apps/hive/warehouse/alter_partition_tbl/data/loc=null/ts_year=null/00000-23-7737266b-4cfe-40b5-a52a-ca5eceb57e16-00001.parquet
+-rw-r--r--   3 root hadoop       1242 2022-09-27 13:11 /apps/hive/warehouse/alter_partition_tbl/data/loc=null/ts_year=null/00001-24-b14e017d-61e1-4fb0-b635-bc5e48cf21c8-00001.parquet
+[root@tbds-192-168-0-37 ~]# 
+
+```
+我们发现，删除表的loc分区、years(ts)分区之后,目录变成**loc=null/ts_year=null**，后面的新数据将保存在该路径下。
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## 2. Flink 操作 Iceberg
