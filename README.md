@@ -739,6 +739,7 @@ Spark ≤Ÿ◊˜Iceberg ≤ªΩˆø…“‘Õ®π˝SQLµƒ∑Ω Ω≤È—ØIceberg ˝æ›£¨ªπø…“‘ π”√dataFrameµƒ∑Ω 
 
 ```
 ### 1.7 Iceberg ≤È—Ø±Ì data files
+{catalog}.{database}.{table}.files
 ```scala
  spark.sql(
       """
@@ -803,4 +804,180 @@ Spark ≤Ÿ◊˜Iceberg ≤ªΩˆø…“‘Õ®π˝SQLµƒ∑Ω Ω≤È—ØIceberg ˝æ›£¨ªπø…“‘ π”√dataFrameµƒ∑Ω 
 +-------+--------------------+-----------+------------+------------------+--------------------+--------------------+--------------------+----------------+--------------------+--------------------+------------+-------------+------------+-------------+
 
 ```
+
+### 1.8 Iceberg ≤È—Ø±Ì manifests
+{catalog}.{database}.{table}.manifests
+
+```scala
+    spark.sql(
+      """
+        |create table if not exists hive_catalog.default.iceberg_test_tbl(id int, name string, age int) using iceberg
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.iceberg_test_tbl
+        |values
+        |(1,'rison', 18),
+        |(2, 'zhangsan', 20)
+        |""".stripMargin
+    )
+    spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
+    spark.sql(
+      """
+        |select * from hive_catalog.default.iceberg_test_tbl.manifests
+        |""".stripMargin
+    ).show()
+
+```
+
+```shell script
+22/09/27 14:55:39 INFO CodeGenerator: Code generated in 30.500539 ms
++---+--------+---+
+| id|    name|age|
++---+--------+---+
+|  1|   rison| 18|
+|  1|   rison| 18|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  2|zhangsan| 20|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
++---+--------+---+
++--------------------+------+-----------------+-------------------+----------------------+-------------------------+------------------------+-------------------+
+|                path|length|partition_spec_id|  added_snapshot_id|added_data_files_count|existing_data_files_count|deleted_data_files_count|partition_summaries|
++--------------------+------+-----------------+-------------------+----------------------+-------------------------+------------------------+-------------------+
+|hdfs://hdfsCluste...|  5930|                0|3268582405449064443|                     2|                        0|                       0|                 []|
+|hdfs://hdfsCluste...|  5930|                0|3210846780360171248|                     2|                        0|                       0|                 []|
+|hdfs://hdfsCluste...|  5929|                0|4682874639393672542|                     2|                        0|                       0|                 []|
+|hdfs://hdfsCluste...|  5929|                0|8667987842706378050|                     2|                        0|                       0|                 []|
+|hdfs://hdfsCluste...|  5928|                0|8961166628509057021|                     2|                        0|                       0|                 []|
+|hdfs://hdfsCluste...|  5927|                0|1665322165591746063|                     2|                        0|                       0|                 []|
+|hdfs://hdfsCluste...|  5929|                0|1368006528896806597|                     2|                        0|                       0|                 []|
+|hdfs://hdfsCluste...|  5927|                0| 609321932124834691|                     2|                        0|                       0|                 []|
++--------------------+------+-----------------+-------------------+----------------------+-------------------------+------------------------+-------------------+
+
+```
+### 1.9 Iceberg ≤È—Ø÷∏∂®±ÌøÏ’’ ˝æ›
+≤È—ØIceberg±Ì ˝æ›ø…“‘÷∏∂®snapshot-id¿¥≤È—Ø÷∏∂®øÏ’’µƒ ˝æ›£¨’‚÷÷∑Ω Ωø…“‘ π”√
+dataFrame api ∑Ω Ω≤È—Ø£¨Spark3.x ø…“‘Õ®π˝sql∑Ω Ω¿¥≤È—Ø£¨≤Ÿ◊˜»Áœ¬£∫
+
+```scala
+        spark.sql(
+          """
+            |create table if not exists hive_catalog.default.iceberg_test_tbl(id int, name string, age int) using iceberg
+            |""".stripMargin
+        )
+        spark.sql(
+          """
+            |insert into table hive_catalog.default.iceberg_test_tbl
+            |values
+            |(1,'rison_new', 18),
+            |(2, 'zhangsan_new', 20)
+            |""".stripMargin
+        )
+        spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
+    
+        //≤È—Ø÷∏∂®øÏ’’ ˝æ›£¨øÏ’’IDø…“‘Õ®π˝∂¡»°json‘™ ˝æ›µƒŒƒº˛ªÒ»°
+        spark.read
+          .option("snapshot-id", 3210846780360171248L)
+          .format("iceberg")
+          .table("hive_catalog.default.iceberg_test_tbl")
+          .show()
+    
+        //spark3.x∞Ê±æ …Ë∂®µ±«∞øÏ’’id,sql≤È—Ø ˝æ›
+        spark.sql(
+          """
+            |call hive_catalog.system.set_current_snapshot('default.iceberg_test_tbl', 3210846780360171248)
+            |""".stripMargin
+        )
+        spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
+```
+
+```
+22/09/27 16:45:09 INFO CodeGenerator: Code generated in 30.46259 ms
++---+------------+---+
+| id|        name|age|
++---+------------+---+
+|  1|   rison_new| 18|
+|  1|       rison| 18|
+|  2|    zhangsan| 20|
+|  2|zhangsan_new| 20|
+|  1|       rison| 18|
+|  2|    zhangsan| 20|
+|  1|       rison| 18|
+|  2|    zhangsan| 20|
+|  1|       rison| 18|
+|  2|    zhangsan| 20|
+|  1|       rison| 18|
+|  2|    zhangsan| 20|
+|  1|       rison| 18|
+|  2|    zhangsan| 20|
+|  1|       rison| 18|
+|  2|    zhangsan| 20|
++---+------------+---+
++---+------------+-
+| id|    name|age|
++---+--------+---+
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
++---+--------+---+
+
++---+--------+---+
+| id|    name|age|
++---+--------+---+
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
++---+--------+---+
+
+```
+### 1.10 Iceberg ≤È—Ø÷∏∂®±ÌøÏ’’ ˝æ›
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## 2. Flink ≤Ÿ◊˜ Iceberg
