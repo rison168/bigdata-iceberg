@@ -16,7 +16,7 @@ object SparkDataFrameApplication {
       //指定hive catalog,catalog 命名为 hive_catalog
       .config("spark.sql.catalog.hive_catalog", "org.apache.iceberg.spark.SparkCatalog")
       .config("spark.sql.catalog.hive_catalog.type", "hive")
-      .config("spark.sql.catalog.hive_prod.uri", "thrift://tbds-192-168-0-18:9083,thrift://tbds-192-168-0-29:9083")
+      .config("spark.sql.catalog.hive_catalog.uri", "thrift://tbds-192-168-0-18:9083,thrift://tbds-192-168-0-29:9083")
       .config("iceberg.engine.hive.enabled", "true")
       //指定 hadoop catalog，catalog 命名为 hadoop_catalog
       .config("spark.sql.catalog.hadoop_catalog", "org.apache.iceberg.spark.SparkCatalog")
