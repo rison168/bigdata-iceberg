@@ -964,10 +964,98 @@ dataFrame api 方式查询，Spark3.x 可以通过sql方式来查询，操作如下：
 +---+--------+---+
 
 ```
-### 1.10 Iceberg 查询指定表快照数据
+### 1.10 Iceberg 根据时间戳查询数据
+Spark读取Iceberg数据可以指定’as-of-timestamp‘参数，通过指定的一个毫秒时间参数查询iceberg表数据，
+iceberg会根据元数据找出timestamp-ms <= as-of-timestamp对应的snapshot-id,
+spark3.x支持SQL指定时间查询数据。
 
+```scala
+  spark.sql(
+      """
+        |create table if not exists hive_catalog.default.iceberg_test_tbl(id int, name string, age int) using iceberg
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.iceberg_test_tbl
+        |values
+        |(1,'rison_new', 18),
+        |(2, 'zhangsan_new', 20)
+        |""".stripMargin
+    )
+    spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
+    //dataframe api
+    spark.read
+      .option("as-of-timestamp", "1664268086000")
+      .table("hive_catalog.default.iceberg_test_tbl")
+      .show()
+    // 回滚设定当前时间戳, sql查询当前数据
+    spark.sql(
+      """
+        |CALL hive_catalog.system.rollback_to_timestamp('default.iceberg_test_tbl', TIMESTAMP '2022-09-27 16:41:26')
+        |""".stripMargin
+    )
+    spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
+```
 
-
+```shell script
++---+------------+---+
+| id|        name|age|
++---+------------+---+
+|  1|       rison| 18|
+|  1|       rison| 18|
+|  2|    zhangsan| 20|
+|  2|    zhangsan| 20|
+|  1|   rison_new| 18|
+|  2|zhangsan_new| 20|
+|  1|       rison| 18|
+|  2|    zhangsan| 20|
+|  1|       rison| 18|
+|  2|    zhangsan| 20|
+|  1|       rison| 18|
+|  2|    zhangsan| 20|
+|  1|       rison| 18|
+|  2|    zhangsan| 20|
+|  1|       rison| 18|
+|  2|    zhangsan| 20|
++---+------------+---+
++---+--------+---+
+| id|    name|age|
++---+--------+---+
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
++---+--------+---+
++---+--------+---+
+| id|    name|age|
++---+--------+---+
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
++---+--------+---+
+```
 
 
 
