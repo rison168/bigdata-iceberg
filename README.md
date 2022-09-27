@@ -1056,7 +1056,52 @@ spark3.x支持SQL指定时间查询数据。
 |  2|zhangsan| 20|
 +---+--------+---+
 ```
+### 1.11 Iceberg 回滚快照
+iceberg可以回滚快照，可以借助Java代码实现， dataframe api 并没提供对应的接口，
+spark3.x版本，支持sql回滚，Iceberg对应的表中会生成新的Snapshot-id,重新查询，回滚生效。
 
+```scala
+    spark.sql(
+      """
+        |create table if not exists hive_catalog.default.iceberg_test_tbl(id int, name string, age int) using iceberg
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.iceberg_test_tbl
+        |values
+        |(1,'rison_new', 18),
+        |(2, 'zhangsan_new', 20)
+        |""".stripMargin
+    )
+    spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
+    //1. java api 方式 回滚快照
+    val conf = new Configuration()
+    conf.set("fs.defaultFS", "hdfs://hdfsCluster")
+    conf.addResource(new Path("/usr/hdp/current/hadoop-client/etc/hadoop/hdfs-site.xml"))
+    conf.addResource(new Path("/usr/hdp/current/hadoop-client/etc/hadoop/core-site.xml"))
+    conf.addResource(new Path("/usr/hdp/current/hive-client/conf/hive-site.xml"))
+    conf.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem")
+
+    conf.setBoolean("fs.hdfs.impl.disable.cache", true)
+    //hadoop catalog 模式
+//    val catalog = new HadoopCatalog(conf, "hdfs://hdfsCluster/apps/hive/warehouse")
+    val catalog = new HiveCatalog(conf)
+    catalog.setConf(conf)
+    val table: Table = catalog.loadTable(TableIdentifier.of("default", "iceberg_test_tbl"))
+    table.manageSnapshots().rollbackTo(3210846780360171248L).commit()
+
+    spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
+
+    //2. spark3.x版本 sql方式回滚快照
+    spark.sql(
+      """
+        |call hive_catalog.system.rollback_to_snapshot('default.iceberg_test_tbl', 3210846780360171248)
+        |""".stripMargin
+    )
+    spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
+
+```
 
 
 
