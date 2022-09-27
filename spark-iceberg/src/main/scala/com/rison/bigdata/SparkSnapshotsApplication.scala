@@ -4,13 +4,13 @@ import org.apache.spark.sql.SparkSession
 
 /**
  * @PACKAGE_NAME: com.rison.bigdata
- * @NAME: SparkDataFrameApplication
+ * @NAME: SparkSnapshotsApplication
  * @USER: Rison
- * @DATE: 2022/9/27 13:42
+ * @DATE: 2022/9/27 14:03
  * @PROJECT_NAME: bigdata-iceberg
  * */
 
-object SparkDataFrameApplication {
+object SparkSnapshotsApplication {
   def main(args: Array[String]): Unit = {
     val spark: SparkSession = SparkSession.builder().appName(this.getClass.getSimpleName.stripSuffix("$"))
       //指定hive catalog,catalog 命名为 hive_catalog
@@ -25,8 +25,6 @@ object SparkDataFrameApplication {
       //修改分区属性需要
       .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")
       .getOrCreate()
-
-    //TODO 1. 创建Iceberg表，插入数据
     spark.sql(
       """
         |create table if not exists hive_catalog.default.iceberg_test_tbl(id int, name string, age int) using iceberg
@@ -40,21 +38,18 @@ object SparkDataFrameApplication {
         |(2, 'zhangsan', 20)
         |""".stripMargin
     )
-    // 1.1 sql的方式读取iceberg的数据
     spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
-
-    // 1.2 dataframe的方式读取iceberg的数据
-    spark.table("hive_catalog.default.iceberg_test_tbl").show()
-    //hadoop catalog 才可以如此操作
-    //    spark.read.format("iceberg")
-    //      .load("hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl").show()
+    spark.sql(
+      """
+        |select * from hive_catalog.default.iceberg_test_tbl.snapshots
+        |""".stripMargin
+    ).show()
 
     spark.close()
   }
 }
-
 /*
-/usr/hdp/2.2.0.0-2041/spark/bin/spark-submit  --class com.rison.bigdata.SparkDataFrameApplication \
+/usr/hdp/2.2.0.0-2041/spark/bin/spark-submit  --class com.rison.bigdata.SparkSnapshotsApplication \
 --master yarn \
 --deploy-mode client \
 --driver-memory 500m \

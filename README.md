@@ -636,14 +636,108 @@ Spark ²Ù×÷Iceberg ²»½ö¿ÉÒÔÍ¨¹ıSQLµÄ·½Ê½²éÑ¯IcebergÊı¾İ£¬»¹¿ÉÒÔÊ¹ÓÃdataFrameµÄ·½Ê
       .load("hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl").show()
 
 ```
+### 1.5 Iceberg ²éÑ¯¿ìÕÕ
+Ã¿´ÎÏòiceberg±íÖĞcommitÊı¾İ¶¼»áÉú³É¶ÔÓ¦µÄÒ»¸ö¿ìÕÕĞÅÏ¢
+ÎÒÃÇ¿ÉÒÔÍ¨¹ı²éÑ¯catalog.db.table.snapshots À´²éÑ¯iceberg±íÖĞÓµÓĞµÄ¿ìÕÕ£¬²Ù×÷ÈçÏÂ£º
 
+```scala
+  spark.sql(
+      """
+        |create table if not exists hive_catalog.default.iceberg_test_tbl(id int, name string, age int) using iceberg
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.iceberg_test_tbl
+        |values
+        |(1,'rison', 18),
+        |(2, 'zhangsan', 20)
+        |""".stripMargin
+    )
+    spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
+    spark.sql(
+      """
+        |select * from hive_catalog.default.iceberg_test_tbl.snapshots
+        |""".stripMargin
+    ).show()
 
+```
 
+```shell script
+22/09/27 14:13:49 INFO CodeGenerator: Code generated in 24.651702 ms
++---+--------+---+
+| id|    name|age|
++---+--------+---+
+|  1|   rison| 18|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
++---+--------+---+
++--------------------+-------------------+-------------------+---------+--------------------+--------------------+
+|        committed_at|        snapshot_id|          parent_id|operation|       manifest_list|             summary|
++--------------------+-------------------+-------------------+---------+--------------------+--------------------+
+|2022-09-27 13:52:...| 609321932124834691|               null|   append|hdfs://hdfsCluste...|{spark.app.id -> ...|
+|2022-09-27 13:57:...|1368006528896806597| 609321932124834691|   append|hdfs://hdfsCluste...|{spark.app.id -> ...|
+|2022-09-27 14:10:...|1665322165591746063|1368006528896806597|   append|hdfs://hdfsCluste...|{spark.app.id -> ...|
+|2022-09-27 14:13:...|8961166628509057021|1665322165591746063|   append|hdfs://hdfsCluste...|{spark.app.id -> ...|
++--------------------+-------------------+-------------------+---------+--------------------+--------------------+
 
+```
+### 1.6 Iceberg ²éÑ¯±íÀúÊ·
 
+ÎÒÃÇ¿ÉÒÔÍ¨¹ı²éÑ¯catalog.db.table.history À´²éÑ¯iceberg±íµÄÀúÊ·ĞÅÏ¢£¨±í¿ìÕÕĞÅÏ¢ÄÚÈİ£©£¬²Ù×÷ÈçÏÂ£º
+```scala
+    spark.sql(
+      """
+        |create table if not exists hive_catalog.default.iceberg_test_tbl(id int, name string, age int) using iceberg
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into table hive_catalog.default.iceberg_test_tbl
+        |values
+        |(1,'rison', 18),
+        |(2, 'zhangsan', 20)
+        |""".stripMargin
+    )
+    spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
+    spark.sql(
+      """
+        |select * from hive_catalog.default.iceberg_test_tbl.history
+        |""".stripMargin
+    ).show()
+```
+```shell script
+22/09/27 14:19:52 INFO CodeGenerator: Code generated in 19.081558 ms
++---+--------+---+
+| id|    name|age|
++---+--------+---+
+|  1|   rison| 18|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  1|   rison| 18|
+|  2|zhangsan| 20|
++---+--------+---+
++--------------------+-------------------+-------------------+-------------------+
+|     made_current_at|        snapshot_id|          parent_id|is_current_ancestor|
++--------------------+-------------------+-------------------+-------------------+
+|2022-09-27 13:52:...| 609321932124834691|               null|               true|
+|2022-09-27 13:57:...|1368006528896806597| 609321932124834691|               true|
+|2022-09-27 14:10:...|1665322165591746063|1368006528896806597|               true|
+|2022-09-27 14:13:...|8961166628509057021|1665322165591746063|               true|
+|2022-09-27 14:19:...|8667987842706378050|8961166628509057021|               true|
++--------------------+-------------------+-------------------+-------------------+
 
-
-
+```
 
 
 ## 2. Flink ²Ù×÷ Iceberg
