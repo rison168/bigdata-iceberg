@@ -1322,11 +1322,13 @@ Found 104 items
 [root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/iceberg_test_tbl/metadata | grep snap |wc -l
 27
 ```
-### 1.12 Iceberg 删除历史快照
+### 1.13 Iceberg 删除历史快照
 目前可以通Java Api 删除历史快照，可以通过指定时间戳，当前时间戳之前的快照都会被删除，
 注意：如果指定的时间比最后的快照时间还大，还是会保留最后一份快照数据，
 可以通过查看元数据的json文件来查找指定的时间。
 在删除快照的时候，数据data目录下过期的数据parquet文件也会删除，比如快照回滚后不需要的文件。
+
+到底那些parquet文件被删除，取决于‘xxx-snap-xx.avro’中对应的manifest list文件数据对应的parquet文件。
 
 ```scala
     table.expireSnapshots().expireOlderThan(1664292360000L).commit()
@@ -1342,7 +1344,159 @@ Found 104 items
 #数据文件
 [root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/iceberg_test_tbl/data | wc -l
 16
+
+
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=609321932124834691, timestamp_ms=1664257957290, operation=append, summary={spark.app.id=application_1660791452742_0126, added-data-files=2, added-records=2, added-files-size=1763, changed-partition-count=1, total-records=2, total-files-size=1763, total-data-files=2, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-609321932124834691-1-17276271-0e96-4866-b7fa-639b1ecf8467.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=1368006528896806597, timestamp_ms=1664258251829, operation=append, summary={spark.app.id=application_1660791452742_0129, added-data-files=2, added-records=2, added-files-size=1763, changed-partition-count=1, total-records=4, total-files-size=3526, total-data-files=4, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-1368006528896806597-1-20b4f52a-1f52-42b5-91fe-26089c9cec4d.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=1665322165591746063, timestamp_ms=1664259016797, operation=append, summary={spark.app.id=application_1660791452742_0130, added-data-files=2, added-records=2, added-files-size=1763, changed-partition-count=1, total-records=6, total-files-size=5289, total-data-files=6, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-1665322165591746063-1-876c91cc-87bb-4fce-bfdd-1550d034c5f8.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=8961166628509057021, timestamp_ms=1664259226621, operation=append, summary={spark.app.id=application_1660791452742_0131, added-data-files=2, added-records=2, added-files-size=1763, changed-partition-count=1, total-records=8, total-files-size=7052, total-data-files=8, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-8961166628509057021-1-f7a7e627-848e-407d-a551-f9dff5704821.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=8667987842706378050, timestamp_ms=1664259589662, operation=append, summary={spark.app.id=application_1660791452742_0132, added-data-files=2, added-records=2, added-files-size=1763, changed-partition-count=1, total-records=10, total-files-size=8815, total-data-files=10, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-8667987842706378050-1-c0366829-33cb-42d2-8f3d-4990a2d19429.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=4682874639393672542, timestamp_ms=1664259959029, operation=append, summary={spark.app.id=application_1660791452742_0133, added-data-files=2, added-records=2, added-files-size=1763, changed-partition-count=1, total-records=12, total-files-size=10578, total-data-files=12, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-4682874639393672542-1-fe639576-0a7b-43bf-9638-7f7bc0388883.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=3210846780360171248, timestamp_ms=1664260042342, operation=append, summary={spark.app.id=application_1660791452742_0134, added-data-files=2, added-records=2, added-files-size=1763, changed-partition-count=1, total-records=14, total-files-size=12341, total-data-files=14, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-3210846780360171248-1-c0f02a24-981c-49cb-9a0d-67cbdfe3ae2f.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=3268582405449064443, timestamp_ms=1664261736154, operation=append, summary={spark.app.id=application_1660791452742_0135, added-data-files=2, added-records=2, added-files-size=1763, changed-partition-count=1, total-records=16, total-files-size=14104, total-data-files=16, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-3268582405449064443-1-d08bd895-1a83-4842-a119-c54494c2b083.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=6686836141026527903, timestamp_ms=1664263463413, operation=append, summary={spark.app.id=application_1660791452742_0136, added-data-files=2, added-records=2, added-files-size=1763, changed-partition-count=1, total-records=18, total-files-size=15867, total-data-files=18, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-6686836141026527903-1-308f15ba-8dd2-445d-9262-c54eade4b0ed.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=874788846008064190, timestamp_ms=1664263553000, operation=append, summary={spark.app.id=application_1660791452742_0137, added-data-files=2, added-records=2, added-files-size=1763, changed-partition-count=1, total-records=6, total-files-size=5289, total-data-files=6, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-874788846008064190-1-dc4eaecf-2b59-4945-bd2d-46098d3b8ea1.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=606824877993706670, timestamp_ms=1664263673953, operation=append, summary={spark.app.id=application_1660791452742_0138, added-data-files=2, added-records=2, added-files-size=1763, changed-partition-count=1, total-records=6, total-files-size=5289, total-data-files=6, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-606824877993706670-1-2bad1111-de64-4fab-a244-55198c3ff42d.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=8898936303218019847, timestamp_ms=1664266404653, operation=append, summary={spark.app.id=application_1660791452742_0139, added-data-files=2, added-records=2, added-files-size=1763, changed-partition-count=1, total-records=6, total-files-size=5289, total-data-files=6, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-8898936303218019847-1-5bf1a920-bb3a-4b87-bb6e-20765c511fd0.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=3877921424867202910, timestamp_ms=1664266411145, operation=append, summary={spark.app.id=application_1660791452742_0139, added-data-files=2, added-records=2, added-files-size=1763, changed-partition-count=1, total-records=6, total-files-size=5289, total-data-files=6, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-3877921424867202910-1-020d2174-bbe3-433c-93af-990ca49fa03d.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=8248285375762907729, timestamp_ms=1664267965588, operation=append, summary={spark.app.id=application_1660791452742_0142, added-data-files=2, added-records=2, added-files-size=1819, changed-partition-count=1, total-records=16, total-files-size=14160, total-data-files=16, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-8248285375762907729-1-45d1df70-cad0-4b5f-a002-b78c150c886e.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=8361479542460953047, timestamp_ms=1664268306907, operation=append, summary={spark.app.id=application_1660791452742_0143, added-data-files=2, added-records=2, added-files-size=1819, changed-partition-count=1, total-records=16, total-files-size=14160, total-data-files=16, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-8361479542460953047-1-919b8ce9-60de-4506-bcb2-4fd2b7ba73ea.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=6811105265486824926, timestamp_ms=1664268408107, operation=append, summary={spark.app.id=application_1660791452742_0144, added-data-files=2, added-records=2, added-files-size=1819, changed-partition-count=1, total-records=16, total-files-size=14160, total-data-files=16, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-6811105265486824926-1-ecc507b8-8d75-475b-8480-c4b0fa363783.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=7279829749220627725, timestamp_ms=1664271983043, operation=append, summary={spark.app.id=application_1660791452742_0145, added-data-files=2, added-records=2, added-files-size=1819, changed-partition-count=1, total-records=16, total-files-size=14160, total-data-files=16, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-7279829749220627725-1-77f3f559-3731-4b2b-802e-58fefae37527.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=4510645946620756562, timestamp_ms=1664272036918, operation=append, summary={spark.app.id=application_1660791452742_0146, added-data-files=2, added-records=2, added-files-size=1819, changed-partition-count=1, total-records=18, total-files-size=15979, total-data-files=18, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-4510645946620756562-1-68f89ee1-905a-43ad-94a0-6c4dc636490b.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=1919321448752357960, timestamp_ms=1664272105451, operation=append, summary={spark.app.id=application_1660791452742_0147, added-data-files=2, added-records=2, added-files-size=1819, changed-partition-count=1, total-records=20, total-files-size=17798, total-data-files=20, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-1919321448752357960-1-0572449f-18aa-4887-b880-8ba6bd00a1a0.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=200917155765321365, timestamp_ms=1664272260131, operation=append, summary={spark.app.id=application_1660791452742_0148, added-data-files=2, added-records=2, added-files-size=1819, changed-partition-count=1, total-records=22, total-files-size=19617, total-data-files=22, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-200917155765321365-1-d190b39c-083d-4629-854d-fb42d773c006.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=533014079796221170, timestamp_ms=1664272313292, operation=append, summary={spark.app.id=application_1660791452742_0149, added-data-files=2, added-records=2, added-files-size=1819, changed-partition-count=1, total-records=16, total-files-size=14160, total-data-files=16, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-533014079796221170-1-21844ffb-5d26-43e3-a2a8-f7e3ce1d45fd.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=934385538870982327, timestamp_ms=1664287252856, operation=append, summary={spark.app.id=application_1660791452742_0150, added-data-files=2, added-records=2, added-files-size=1819, changed-partition-count=1, total-records=16, total-files-size=14160, total-data-files=16, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-934385538870982327-1-4473ce3e-5589-4859-8480-4e047dc27bb3.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=7352409308772439372, timestamp_ms=1664288184096, operation=append, summary={spark.app.id=application_1660791452742_0151, added-data-files=2, added-records=2, added-files-size=1819, changed-partition-count=1, total-records=18, total-files-size=15979, total-data-files=18, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-7352409308772439372-1-e433307c-4353-4aa6-910b-d52b6b75cb5c.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=8880562242053368301, timestamp_ms=1664288359557, operation=append, summary={spark.app.id=application_1660791452742_0152, added-data-files=2, added-records=2, added-files-size=1819, changed-partition-count=1, total-records=16, total-files-size=14160, total-data-files=16, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-8880562242053368301-1-fe63f8b9-a653-46b3-a163-f29bfc01e265.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=1292882425929531684, timestamp_ms=1664288996499, operation=append, summary={spark.app.id=application_1660791452742_0153, added-data-files=2, added-records=2, added-files-size=1819, changed-partition-count=1, total-records=16, total-files-size=14160, total-data-files=16, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-1292882425929531684-1-6ffc60c0-8a24-4f83-a5e5-4d0d011b118d.avro, schema-id=0}
+22/09/27 23:52:59 INFO RemoveSnapshots: Expired snapshot: BaseSnapshot{id=6526971734319821437, timestamp_ms=1664289134654, operation=append, summary={spark.app.id=application_1660791452742_0154, added-data-files=2, added-records=2, added-files-size=1819, changed-partition-count=1, total-records=18, total-files-size=15979, total-data-files=18, total-delete-files=0, total-position-deletes=0, total-equality-deletes=0}, manifest-list=hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-6526971734319821437-1-9a33ab95-ec21-49c6-bda7-b01b553d9db4.avro, schema-id=0}
+
+22/09/27 23:53:00 WARN RemoveSnapshots: Manifests to delete: hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/f7a7e627-848e-407d-a551-f9dff5704821-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/fe63f8b9-a653-46b3-a163-f29bfc01e265-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/4473ce3e-5589-4859-8480-4e047dc27bb3-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/e433307c-4353-4aa6-910b-d52b6b75cb5c-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/c0f02a24-981c-49cb-9a0d-67cbdfe3ae2f-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/308f15ba-8dd2-445d-9262-c54eade4b0ed-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/020d2174-bbe3-433c-93af-990ca49fa03d-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/17276271-0e96-4866-b7fa-639b1ecf8467-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/fe639576-0a7b-43bf-9638-7f7bc0388883-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/2bad1111-de64-4fab-a244-55198c3ff42d-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/77f3f559-3731-4b2b-802e-58fefae37527-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/5bf1a920-bb3a-4b87-bb6e-20765c511fd0-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/919b8ce9-60de-4506-bcb2-4fd2b7ba73ea-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/ecc507b8-8d75-475b-8480-c4b0fa363783-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/6ffc60c0-8a24-4f83-a5e5-4d0d011b118d-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/0572449f-18aa-4887-b880-8ba6bd00a1a0-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/c0366829-33cb-42d2-8f3d-4990a2d19429-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/20b4f52a-1f52-42b5-91fe-26089c9cec4d-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/dc4eaecf-2b59-4945-bd2d-46098d3b8ea1-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/68f89ee1-905a-43ad-94a0-6c4dc636490b-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/876c91cc-87bb-4fce-bfdd-1550d034c5f8-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/9a33ab95-ec21-49c6-bda7-b01b553d9db4-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/d190b39c-083d-4629-854d-fb42d773c006-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/21844ffb-5d26-43e3-a2a8-f7e3ce1d45fd-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/d08bd895-1a83-4842-a119-c54494c2b083-m0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/45d1df70-cad0-4b5f-a002-b78c150c886e-m0.avro
+22/09/27 23:53:00 WARN RemoveSnapshots: Manifests Lists to delete: hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-8961166628509057021-1-f7a7e627-848e-407d-a551-f9dff5704821.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-1919321448752357960-1-0572449f-18aa-4887-b880-8ba6bd00a1a0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-6686836141026527903-1-308f15ba-8dd2-445d-9262-c54eade4b0ed.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-934385538870982327-1-4473ce3e-5589-4859-8480-4e047dc27bb3.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-200917155765321365-1-d190b39c-083d-4629-854d-fb42d773c006.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-609321932124834691-1-17276271-0e96-4866-b7fa-639b1ecf8467.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-7279829749220627725-1-77f3f559-3731-4b2b-802e-58fefae37527.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-7352409308772439372-1-e433307c-4353-4aa6-910b-d52b6b75cb5c.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-8248285375762907729-1-45d1df70-cad0-4b5f-a002-b78c150c886e.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-4682874639393672542-1-fe639576-0a7b-43bf-9638-7f7bc0388883.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-6526971734319821437-1-9a33ab95-ec21-49c6-bda7-b01b553d9db4.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-8898936303218019847-1-5bf1a920-bb3a-4b87-bb6e-20765c511fd0.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-874788846008064190-1-dc4eaecf-2b59-4945-bd2d-46098d3b8ea1.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-6811105265486824926-1-ecc507b8-8d75-475b-8480-c4b0fa363783.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-4510645946620756562-1-68f89ee1-905a-43ad-94a0-6c4dc636490b.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-1368006528896806597-1-20b4f52a-1f52-42b5-91fe-26089c9cec4d.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-3210846780360171248-1-c0f02a24-981c-49cb-9a0d-67cbdfe3ae2f.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-8361479542460953047-1-919b8ce9-60de-4506-bcb2-4fd2b7ba73ea.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-8667987842706378050-1-c0366829-33cb-42d2-8f3d-4990a2d19429.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-3268582405449064443-1-d08bd895-1a83-4842-a119-c54494c2b083.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-606824877993706670-1-2bad1111-de64-4fab-a244-55198c3ff42d.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-3877921424867202910-1-020d2174-bbe3-433c-93af-990ca49fa03d.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-8880562242053368301-1-fe63f8b9-a653-46b3-a163-f29bfc01e265.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-533014079796221170-1-21844ffb-5d26-43e3-a2a8-f7e3ce1d45fd.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-1292882425929531684-1-6ffc60c0-8a24-4f83-a5e5-4d0d011b118d.avro, hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl/metadata/snap-1665322165591746063-1-876c91cc-87bb-4fce-bfdd-1550d034c5f8.avro
+
+
 ```
+**补充：**
+如果想要在commit的时候，触发删除快照可以在建表的时候指定如下两个属性：
+```shell script
+# 保留最近3个快照
+'write.metadata.delete-after-commit.enabled'= true
+'write.metadata.previous-versions-max' = 3
+
+# 样例
+create table if not exists test_tbl(
+id int,
+name string
+) using iceberg
+TBLPROPERTIES  (
+'write.metadata.delete-after-commit.enabled'= true,
+'write.metadata.previous-versions-max' = 3
+)
+```
+### 1.14 iceberg insert into 
+'insert into ' 是向iceberg 表插入数据：
+* insert into tbl values (xxx)
+* insert into tbl select ...
+
+
+### 1.15 iceberg merge into 
+iceberg 'merge into ' 可以对表数据进行行级更新或删除，
+spark3.x 版本之后，其原理是包含需要删除和更新行数据所在的data files.
+'merge into '可以使用一个查询结果数据来更新目标表数据，其语法和join类似，根据
+指定的匹配添加对匹配数据进行相应的操作。
+示例：
+
+```sql
+MERGE INTO tbl t 
+USING (SELECT ...) s
+ON t.id = s.id
+WHEN MATCHED AND ... THEN DELETE -- 删除
+WHEN MATCHED AND ... THEN UPDATE SET ... -- 更新
+WHEN MATCHED AND ... AND ... THEN UPDATE SET ... -- 多条件更新
+WHEN NOT MATCHED AND ... THEN INSERT (col1, col2,...) VALUE (s.col1, s.co2, ...) -- 匹配不上向目标表插入数据
+```
+```scala
+ spark.sql("drop table  if exists hive_catalog.default.a")
+    spark.sql(
+      """
+        |create table if not exists  hive_catalog.default.a(
+        |id int,
+        |name string,
+        |age int
+        |) using iceberg
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into hive_catalog.default.a values(1, 'rison', 18),(2, 'zhangsan',20),(3, 'lisi', 22)
+        |""".stripMargin)
+    spark.sql("select * from hive_catalog.default.a").show()
+    //创建表b
+    spark.sql("drop table if exists hive_catalog.default.b")
+    spark.sql(
+      """
+        |create table if not exists hive_catalog.default.b(
+        |id int,
+        |name string,
+        |age int,
+        |op string
+        |) using iceberg
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into hive_catalog.default.b values(1, 'rison', 18, 'D'),(2, 'zhangsan_new',100, 'U'),(4, 'new boy1', 22, 'I'),(5, 'new boy2', 22, 'I')
+        |""".stripMargin)
+    spark.sql("select * from hive_catalog.default.b").show()
+
+    //TODO MERGE INTO 向source表更新、删除、新增数据
+    spark.sql(
+      """
+        |merge into hive_catalog.default.a t1
+        |using (select id, name, age, op from hive_catalog.default.b) t2
+        |on t1.id = t2.id
+        |when matched and t2.op = 'D' then delete
+        |when matched and t2.op = 'U' then update set t1.name = t2.name, t1.age = t2.age
+        |when not matched then insert (id, name, age) values (t2.id, t2.name, t2.age)
+        |
+        |""".stripMargin
+    )
+
+    spark.sql("select * from hive_catalog.default.a").show()
+```
+
+```shell script
+
+# a表
+| id|    name|age|
++---+--------+---+
+|  1|   rison| 18|
+|  2|zhangsan| 20|
+|  3|    lisi| 22|
++---+--------+---+
+# b表
++---+------------+---+---+
+| id|        name|age| op|
++---+------------+---+---+
+|  1|       rison| 18|  D|
+|  2|zhangsan_new|100|  U|
+|  4|    new boy1| 22|  I|
+|  5|    new boy2| 22|  I|
++---+------------+---+---+
+# merge into 之后的 a 表
++---+------------+---+
+| id|        name|age|
++---+------------+---+
+|  2|zhangsan_new|100|
+|  3|        lisi| 22|
+|  4|    new boy1| 22|
+|  5|    new boy2| 22|
++---+------------+---+
+
+```
+
 
 
 ## 2. Flink 操作 Iceberg
