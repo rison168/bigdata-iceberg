@@ -1470,6 +1470,7 @@ WHEN NOT MATCHED AND ... THEN INSERT (col1, col2,...) VALUE (s.col1, s.co2, ...)
 ```shell script
 
 # a表
++---+--------+---+
 | id|    name|age|
 +---+--------+---+
 |  1|   rison| 18|
@@ -1494,6 +1495,162 @@ WHEN NOT MATCHED AND ... THEN INSERT (col1, col2,...) VALUE (s.col1, s.co2, ...)
 |  4|    new boy1| 22|
 |  5|    new boy2| 22|
 +---+------------+---+
+
+```
+### 1.16 iceberg insert overwrite
+'insert overwrite' 可以覆盖iceberg表数据，这种操作会将表的全部数据给替换掉，
+建议如果部分数据替换操作，可以是用上文提到的‘merge into’.
+对于Iceberg分区表数据，使用‘insert overwrite’操作时，有两种情况：
+* 动态覆盖
+动态覆盖会全量的将原有的数据覆盖，并将新插入的数据根据iceberg的分区规则自动分区，类似
+hive的动态分区。
+* 静态覆盖
+静态覆盖需要在向Iceberg中插入数据时需要手动指定分区，如果当前Iceberg表存在这个分区，
+那么只有这个分区的数据被覆盖，其他分区不受影响，如果iceberg表不存在这个分区，那么相当于给Iceberg
+表增加了一个分区。
+
+```scala
+ //t1 分区表
+    spark.sql(
+      """
+        |create table if not exists hive_catalog.default.over_write_tbl(
+        |id int,
+        |name string,
+        |loc string
+        |)using iceberg
+        |partitioned by (loc)
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into hive_catalog.default.over_write_tbl
+        |values
+        |(1,'rison','beijing'),
+        |(2,'zhangsan', 'guangzhou'),
+        |(3, 'lisi', 'shagnhai')
+        |""".stripMargin
+    )
+    spark.sql("select * from hive_catalog.default.over_write_tbl").show()
+    //t2 不分区表
+    spark.sql(
+      """
+        |create table if not exists hive_catalog.default.over_write_tbl2(
+        |id int,
+        |name string,
+        |loc string
+        |)using iceberg
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into hive_catalog.default.over_write_tbl2
+        |values
+        |(1,'rison','beijing'),
+        |(2,'zhangsan', 'guangzhou'),
+        |(3, 'lisi', 'shagnhai')
+        |""".stripMargin
+    )
+    spark.sql("select * from hive_catalog.default.over_write_tbl2").show()
+    //t3 测试表
+    spark.sql(
+      """
+        |create table if not exists hive_catalog.default.over_write_tbl3(
+        |id int,
+        |name string,
+        |loc string
+        |)using iceberg
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into hive_catalog.default.over_write_tbl3
+        |values
+        |(1,'rison','addr'),
+        |(3, 'lisi', 'addr'),
+        |(2,'zhangsan_new', 'guangzhou')
+        |""".stripMargin
+    )
+    spark.sql("select * from hive_catalog.default.over_write_tbl3").show()
+
+    //TODO insert overwrite t3 到 t2
+    spark.sql(
+      """
+        |insert overwrite hive_catalog.default.over_write_tbl2
+        |select * from hive_catalog.default.over_write_tbl3
+        |""".stripMargin)
+
+    spark.sql("select * from hive_catalog.default.over_write_tbl2").show()
+    //TODO insert overwrite 动态分区 t3 到 t1
+    spark.sql(
+      """
+        |insert overwrite hive_catalog.default.over_write_tbl
+        |select * from hive_catalog.default.over_write_tbl3 order by(loc)
+        |""".stripMargin)
+    spark.sql("select * from hive_catalog.default.over_write_tbl").show()
+
+    //TODO insert overwrite 静态分区 t3 到 t1 (这里t3就不能查询分区列了)
+    spark.sql(
+      """
+        |insert overwrite hive_catalog.default.over_write_tbl
+        |partition (loc = 'static_pt')
+        |select id, name from hive_catalog.default.over_write_tbl3
+        |""".stripMargin)
+    spark.sql("select * from hive_catalog.default.over_write_tbl").show()
+```
+
+```shell script
+# t1 表
++---+--------+---------+
+| id|    name|      loc|
++---+--------+---------+
+|  1|   rison|  beijing|
+|  2|zhangsan|guangzhou|
+|  3|    lisi| shagnhai|
++---+--------+---------+
+# t2 表
++---+--------+---------+
+| id|    name|      loc|
++---+--------+---------+
+|  1|   rison|  beijing|
+|  2|zhangsan|guangzhou|
+|  3|    lisi| shagnhai|
++---+--------+---------+
+# t3 表
++---+------------+---------+
+| id|        name|      loc|
++---+------------+---------+
+|  1|       rison|     addr|
+|  3|        lisi|     addr|
+|  2|zhangsan_new|guangzhou|
++---+------------+---------+
+# t3表overwrite 到 t3
++---+------------+---------+
+| id|        name|      loc|
++---+------------+---------+
+|  1|       rison|     addr|
+|  3|        lisi|     addr|
+|  2|zhangsan_new|guangzhou|
++---+------------+---------+
+# t3 动态分区 overwrite 到 t1
++---+------------+---------+
+| id|        name|      loc|
++---+------------+---------+
+|  1|       rison|     addr|
+|  3|        lisi|     addr|
+|  2|zhangsan_new|guangzhou|
++---+------------+---------+
+# t3 静态分区 overwrite 到 t1
++---+------------+---------+
+| id|        name|      loc|
++---+------------+---------+
+|  1|       rison|static_pt|
+|  3|        lisi|static_pt|
+|  2|zhangsan_new|static_pt|
+|  1|       rison|     addr|
+|  3|        lisi|     addr|
+|  2|zhangsan_new|guangzhou|
++---+------------+---------+
+
 
 ```
 
