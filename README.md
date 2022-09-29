@@ -1,13 +1,13 @@
-# bigdata-iceberg SparkºÍFlink²Ù×÷Iceberg
+# bigdata-iceberg Sparkå’ŒFlinkæ“ä½œIceberg
 
-## 1. Spark ²Ù×÷ Iceberg
-### 1.1 Ç°ÑÔ spark ºÍ iceberg °æ±¾ĞÅÏ¢
+## 1. Spark æ“ä½œ Iceberg
+### 1.1 å‰è¨€ spark å’Œ iceberg ç‰ˆæœ¬ä¿¡æ¯
 * spark 3.1.2
 * iceberg 0.12.1
 * hive 3.1.2
 * hadoop 3.2.1
 
-### 1.2 SparkÉèÖÃcatalog
+### 1.2 Sparkè®¾ç½®catalog
 * hive catalog
 ```java
 spark.sql.catalog.hive_prod = org.apache.iceberg.spark.SparkCatalog
@@ -32,11 +32,11 @@ Both catalogs are configured using properties nested under the catalog name. Com
 |spark.sql.catalog.catalog-name.warehouse|	hdfs://nn:8020/warehouse/path|	Base path for the warehouse directory|
 |spark.sql.catalog.catalog-name.cache-enabled|	true or false	|Whether to enable catalog cache, default value is true|
 
-### 1.3 SparkÓëIceberg DDLÕûºÏ
-#### 1.3.1  CREATE TABLE ´´½¨±í
-**create table ´´½¨Iceberg±í£¬´´½¨±í²»½ö½ö¿ÉÒÔ´´½¨ÆÕÍ¨±í£¬»¹¿ÉÒÔ´´½¨·ÖÇø±í£¬ÔÙÏò·ÖÇø±íÖĞ²åÈëÒ»ÅúÊı¾İÊ±£¬±ØĞëÒª¶ÔÊı¾İÖĞµÄ·ÖÇø½øĞĞÅÅĞò£¬·ñÔò»á³öÏÖÎÄ¼ş¹Ø±ÕµÄ´íÎó**
+### 1.3 Sparkä¸Iceberg DDLæ•´åˆ
+#### 1.3.1  CREATE TABLE åˆ›å»ºè¡¨
+**create table åˆ›å»ºIcebergè¡¨ï¼Œåˆ›å»ºè¡¨ä¸ä»…ä»…å¯ä»¥åˆ›å»ºæ™®é€šè¡¨ï¼Œè¿˜å¯ä»¥åˆ›å»ºåˆ†åŒºè¡¨ï¼Œå†å‘åˆ†åŒºè¡¨ä¸­æ’å…¥ä¸€æ‰¹æ•°æ®æ—¶ï¼Œå¿…é¡»è¦å¯¹æ•°æ®ä¸­çš„åˆ†åŒºè¿›è¡Œæ’åºï¼Œå¦åˆ™ä¼šå‡ºç°æ–‡ä»¶å…³é—­çš„é”™è¯¯**
 ```scala
-    //´´½¨·ÖÇø±í£¬ÒÔlocÁĞ·ÖÇø×Ö¶Î
+    //åˆ›å»ºåˆ†åŒºè¡¨ï¼Œä»¥locåˆ—åˆ†åŒºå­—æ®µ
     spark.sql(
       """
         |create table if not exists hive_catalog.default.partition_tbl
@@ -75,8 +75,8 @@ drwxrwxrwx   - root hadoop          0 2022-09-27 00:27 hdfs://hdfsCluster/apps/h
 drwxrwxrwx   - root hadoop          0 2022-09-27 00:28 hdfs://hdfsCluster/apps/hive/warehouse/partition_tbl/data/loc=shanghai
 
 ```
-**´´½¨Iceberg·ÖÇøÊ±£¬»¹¿ÉÒÔÍ¨¹ıÒ»Ğ©×ª»»±í´ïÊ½¶ÔtimestampÁĞÀ´½øĞĞ×ª»»£¬´´½¨ £¬³£ÓÃÒş²Ø·ÖÇøµÄ×ª»»±í´ïÊ½ÓĞÈçÏÂ¼¸ÖÖ£º**
-* years(ts):°´ÕÕÄê·ÖÇø
+**åˆ›å»ºIcebergåˆ†åŒºæ—¶ï¼Œè¿˜å¯ä»¥é€šè¿‡ä¸€äº›è½¬æ¢è¡¨è¾¾å¼å¯¹timestampåˆ—æ¥è¿›è¡Œè½¬æ¢ï¼Œåˆ›å»º ï¼Œå¸¸ç”¨éšè—åˆ†åŒºçš„è½¬æ¢è¡¨è¾¾å¼æœ‰å¦‚ä¸‹å‡ ç§ï¼š**
+* years(ts):æŒ‰ç…§å¹´åˆ†åŒº
 ```scala
 spark.sql(
       """
@@ -120,9 +120,9 @@ drwxrwxrwx   - root hadoop          0 2022-09-27 09:37 /apps/hive/warehouse/part
 [root@tbds-192-168-0-37 ~]# 
 
 ```
-×¢Òâ£ºÏò±í²åÈëÊı¾İ£¬±ØĞëÒª°´ÕÕÄêÀ´ÅÅĞò£¬Ö»ÒªÏàÍ¬µÄÄê·İĞ´ÔÚÒ»Æğ¾Í¿ÉÒÔ
+æ³¨æ„ï¼šå‘è¡¨æ’å…¥æ•°æ®ï¼Œå¿…é¡»è¦æŒ‰ç…§å¹´æ¥æ’åºï¼Œåªè¦ç›¸åŒçš„å¹´ä»½å†™åœ¨ä¸€èµ·å°±å¯ä»¥
 
-* months(ts):°´ÕÕ¡°Äê-ÔÂ¡±ÔÂ¼¶±ğ·ÖÇø
+* months(ts):æŒ‰ç…§â€œå¹´-æœˆâ€æœˆçº§åˆ«åˆ†åŒº
 ```scala
    spark.sql(
       """
@@ -169,7 +169,7 @@ drwxrwxrwx   - root hadoop          0 2022-09-27 09:43 /apps/hive/warehouse/part
 
 ```
 
-* days(ts)»òÕßdate(ts):°´ÕÕ¡°Äê-ÔÂ-ÈÕ¡±Ìì¼¶±ğ·ÖÇø
+* days(ts)æˆ–è€…date(ts):æŒ‰ç…§â€œå¹´-æœˆ-æ—¥â€å¤©çº§åˆ«åˆ†åŒº
 
 ```scala
     spark.sql(
@@ -228,7 +228,7 @@ drwxrwxrwx   - root hadoop          0 2022-09-27 09:50 /apps/hive/warehouse/part
 drwxrwxrwx   - root hadoop          0 2022-09-27 09:50 /apps/hive/warehouse/partition_day_tbl/data/ts_day=2021-12-19
 
 ```
-* hours(ts)»òÕßdate_hour(ts):°´ÕÕ¡°Äê-ÔÂ-ÈÕ-Ê±¡±Ğ¡Ê±¼¶±ğ·ÖÇø
+* hours(ts)æˆ–è€…date_hour(ts):æŒ‰ç…§â€œå¹´-æœˆ-æ—¥-æ—¶â€å°æ—¶çº§åˆ«åˆ†åŒº
 ```
  spark.sql(
       """
@@ -284,8 +284,8 @@ drwxrwxrwx   - root hadoop          0 2022-09-27 09:53 /apps/hive/warehouse/part
 drwxrwxrwx   - root hadoop          0 2022-09-27 09:53 /apps/hive/warehouse/partition_hour_tbl/data/ts_hour=2021-12-19-13
 
 ```
-±¸×¢£ºIcebergÖ§³ÖµÄÊ±¼ä·ÖÇøÄ¿Ç°ºÍ½«À´Ö»Ö§³ÖUTC,UTCÊÇ¹ú¼ÊÊ±£¬UTC+8¾ÍÊÇ¹ú¼ÊÊ±¼Ó°ËĞ¡Ê±£¬ÊÇ¶«°ËÇøÊ±¼ä,Ò²¾ÍÊÇ±±¾©Ê±¼ä£¬ËùÒÔÎÒÃÇ¿´µ½ÉÏÃæ·ÖÇøÊ±¼äÓëÊı¾İÊ±¼ä²»Ò»ÖÂ¡£µ«ÊÇ²éÑ¯²»Ó°Ïì×Ô¶¯×ª»»¡£
-³ıÁËÒÔÉÏ³£ÓÃµÄÊ±¼äÒş²Ø·ÖÇøÍâ£¬Iceberg»¹Ö§³Öbucket(N,col)·ÖÇø£¬ÕâÖÖ·ÖÇø·½Ê½¿ÉÒÔ°´ÕÕÄ³ÁĞµÄhashÖµÓëNÈ¡Óà¾ö¶¨Êı¾İÈ¥ÍùµÄ·ÖÇø¡£truncate(L,col)£¬ÕâÖÖÒş²Ø·ÖÇø¿ÉÒÔ½«×Ö·û´®ÁĞ½ØÈ¡L³¤¶È£¬ÏàÍ¬µÄÊı¾İ»á±»·Öµ½ÏàÍ¬·ÖÇøÖĞ¡£
+å¤‡æ³¨ï¼šIcebergæ”¯æŒçš„æ—¶é—´åˆ†åŒºç›®å‰å’Œå°†æ¥åªæ”¯æŒUTC,UTCæ˜¯å›½é™…æ—¶ï¼ŒUTC+8å°±æ˜¯å›½é™…æ—¶åŠ å…«å°æ—¶ï¼Œæ˜¯ä¸œå…«åŒºæ—¶é—´,ä¹Ÿå°±æ˜¯åŒ—äº¬æ—¶é—´ï¼Œæ‰€ä»¥æˆ‘ä»¬çœ‹åˆ°ä¸Šé¢åˆ†åŒºæ—¶é—´ä¸æ•°æ®æ—¶é—´ä¸ä¸€è‡´ã€‚ä½†æ˜¯æŸ¥è¯¢ä¸å½±å“è‡ªåŠ¨è½¬æ¢ã€‚
+é™¤äº†ä»¥ä¸Šå¸¸ç”¨çš„æ—¶é—´éšè—åˆ†åŒºå¤–ï¼ŒIcebergè¿˜æ”¯æŒbucket(N,col)åˆ†åŒºï¼Œè¿™ç§åˆ†åŒºæ–¹å¼å¯ä»¥æŒ‰ç…§æŸåˆ—çš„hashå€¼ä¸Nå–ä½™å†³å®šæ•°æ®å»å¾€çš„åˆ†åŒºã€‚truncate(L,col)ï¼Œè¿™ç§éšè—åˆ†åŒºå¯ä»¥å°†å­—ç¬¦ä¸²åˆ—æˆªå–Lé•¿åº¦ï¼Œç›¸åŒçš„æ•°æ®ä¼šè¢«åˆ†åˆ°ç›¸åŒåˆ†åŒºä¸­ã€‚
 
 **Partition Transforms**
 
@@ -301,7 +301,7 @@ drwxrwxrwx   - root hadoop          0 2022-09-27 09:53 /apps/hive/warehouse/part
 |void|	Always produces null|	Any	|Source type or int|
 
 #### 1.3.2 CREATE TABLE ...  AS SELECT
-Iceberg Ö§³Ö ¡®**create table ... as select**¡¯Óï·¨£¬¿ÉÒÔ´Ó²éÑ¯Óï¾äÖĞ´´½¨Ò»ÕÅ±í£¬²¢²åÈë¶ÔÓ¦µÄÊı¾İ
+Iceberg æ”¯æŒ â€˜**create table ... as select**â€™è¯­æ³•ï¼Œå¯ä»¥ä»æŸ¥è¯¢è¯­å¥ä¸­åˆ›å»ºä¸€å¼ è¡¨ï¼Œå¹¶æ’å…¥å¯¹åº”çš„æ•°æ®
 
 ```scala
    spark.sql(
@@ -330,8 +330,8 @@ Found 2 items
 [root@tbds-192-168-0-37 ~]# 
 
 ```
-#### 1.3.3 DROP TABLE É¾±í
-É¾³ı±íÊ±£¬Ä¿Â¼ÒÀÈ»´æÔÚ£¬µ«ÊÇdataÄ¿Â¼ÏÂµÄÊı¾İÎÄ¼ş±»É¾³ıÁË¡£
+#### 1.3.3 DROP TABLE åˆ è¡¨
+åˆ é™¤è¡¨æ—¶ï¼Œç›®å½•ä¾ç„¶å­˜åœ¨ï¼Œä½†æ˜¯dataç›®å½•ä¸‹çš„æ•°æ®æ–‡ä»¶è¢«åˆ é™¤äº†ã€‚
 ```scala
     spark.sql(
       """
@@ -355,11 +355,11 @@ Found 4 items
 [root@tbds-192-168-0-37 ~]# 
 ```
 
-#### 1.3.3 ALTER TABLE ĞŞ¸Ä±í
-IcebergµÄ alter ²Ù×÷ÔÚSpark3.x°æ±¾ÖĞÖ§³Ö£¬alterÒ»°ã°üº¬ÈçÏÂ²Ù×÷£º
-* Ìí¼Ó¡¢É¾³ıÁĞ
-**Ìí¼ÓÁĞ£ºALTER TABLE ... ADD COLUMN**
-**É¾³ıÁĞ£ºALTER TABLE ... DROP COLUMN**
+#### 1.3.3 ALTER TABLE ä¿®æ”¹è¡¨
+Icebergçš„ alter æ“ä½œåœ¨Spark3.xç‰ˆæœ¬ä¸­æ”¯æŒï¼Œalterä¸€èˆ¬åŒ…å«å¦‚ä¸‹æ“ä½œï¼š
+* æ·»åŠ ã€åˆ é™¤åˆ—
+**æ·»åŠ åˆ—ï¼šALTER TABLE ... ADD COLUMN**
+**åˆ é™¤åˆ—ï¼šALTER TABLE ... DROP COLUMN**
 ```scala
   spark.sql(
       """
@@ -380,7 +380,7 @@ IcebergµÄ alter ²Ù×÷ÔÚSpark3.x°æ±¾ÖĞÖ§³Ö£¬alterÒ»°ã°üº¬ÈçÏÂ²Ù×÷£º
         |select * from  hive_catalog.default.alter_tbl
         |""".stripMargin
     ).show()
-    //Ìí¼ÓÁĞ
+    //æ·»åŠ åˆ—
     spark.sql(
       """
         |alter table hive_catalog.default.alter_tbl add column gender string,loc string
@@ -391,7 +391,7 @@ IcebergµÄ alter ²Ù×÷ÔÚSpark3.x°æ±¾ÖĞÖ§³Ö£¬alterÒ»°ã°üº¬ÈçÏÂ²Ù×÷£º
         |select * from  hive_catalog.default.alter_tbl
         |""".stripMargin
     ).show()
-    //É¾³ıÁĞ
+    //åˆ é™¤åˆ—
     spark.sql(
       """
         |alter table hive_catalog.default.alter_tbl drop column age
@@ -404,21 +404,21 @@ IcebergµÄ alter ²Ù×÷ÔÚSpark3.x°æ±¾ÖĞÖ§³Ö£¬alterÒ»°ã°üº¬ÈçÏÂ²Ù×÷£º
     ).show()
 ```
 ```
-## Ô­Ê¼±í
+## åŸå§‹è¡¨
 +---+--------+---+
 | id|    name|age|
 +---+--------+---+
 |  1|   rison| 18|
 |  2|zhagnsan| 20|
 +---+--------+---+
-## Ìí¼Ó gender/loc ÁĞ
+## æ·»åŠ  gender/loc åˆ—
 +---+--------+---+------+----+
 | id|    name|age|gender| loc|
 +---+--------+---+------+----+
 |  1|   rison| 18|  null|null|
 |  2|zhagnsan| 20|  null|null|
 +---+--------+---+------+----+
-## É¾³ıageÁĞ
+## åˆ é™¤ageåˆ—
 +---+--------+------+----+
 | id|    name|gender| loc|
 +---+--------+------+----+
@@ -427,8 +427,8 @@ IcebergµÄ alter ²Ù×÷ÔÚSpark3.x°æ±¾ÖĞÖ§³Ö£¬alterÒ»°ã°üº¬ÈçÏÂ²Ù×÷£º
 +---+--------+------+----+
 
 ```
-* ÖØÃüÃûÁĞ
-**ÖØÃüÃûÁĞ£ºALTER TABLE ... RENAME COLUMN**
+* é‡å‘½ååˆ—
+**é‡å‘½ååˆ—ï¼šALTER TABLE ... RENAME COLUMN**
 
 ```scala
  spark.sql(
@@ -444,7 +444,7 @@ IcebergµÄ alter ²Ù×÷ÔÚSpark3.x°æ±¾ÖĞÖ§³Ö£¬alterÒ»°ã°üº¬ÈçÏÂ²Ù×÷£º
 ```
 
 ```
-## Ô­Ê¼±í
+## åŸå§‹è¡¨
 +---+--------+----+
 | id|    name| age|
 +---+--------+----+
@@ -455,7 +455,7 @@ IcebergµÄ alter ²Ù×÷ÔÚSpark3.x°æ±¾ÖĞÖ§³Ö£¬alterÒ»°ã°üº¬ÈçÏÂ²Ù×÷£º
 |  1|   rison|null|
 |  2|zhagnsan|null|
 +---+--------+----+
-## ĞŞ¸ÄidÎªid_rename
+## ä¿®æ”¹idä¸ºid_rename
 +---------+--------+----+
 |id_rename|    name| age|
 +---------+--------+----+
@@ -468,13 +468,13 @@ IcebergµÄ alter ²Ù×÷ÔÚSpark3.x°æ±¾ÖĞÖ§³Ö£¬alterÒ»°ã°üº¬ÈçÏÂ²Ù×÷£º
 +---------+--------+----+
 
 ```
-#### 1.3.4 ALTER TABLE ĞŞ¸Ä·ÖÇø
-alterĞŞ¸Ä·ÖÇø£¬°üÀ¨Ìí¼Ó·ÖÇøºÍÉ¾³ı·ÖÇø£¬ÕâÖÖ·ÖÇø²Ù×÷ÔÚspark3.xÖ®ºó±»Ö§³Ö£¬
-Ê¹ÓÃÖ®Ç°±ØĞëÒªÌí¼Óspark.sql.extensionsÊôĞÔ£¬ÆäÖµÎª£ºorg.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions
-ÔÚÌí¼Ó·ÖÇøÊ±»¹Ö§³Ö·ÖÇø×ª»»£¬Óï·¨ÈçÏÂ£º
-* Ìí¼Ó·ÖÇø£ºALTER TABLE...ADD PARTITION FIELD
+#### 1.3.4 ALTER TABLE ä¿®æ”¹åˆ†åŒº
+alterä¿®æ”¹åˆ†åŒºï¼ŒåŒ…æ‹¬æ·»åŠ åˆ†åŒºå’Œåˆ é™¤åˆ†åŒºï¼Œè¿™ç§åˆ†åŒºæ“ä½œåœ¨spark3.xä¹‹åè¢«æ”¯æŒï¼Œ
+ä½¿ç”¨ä¹‹å‰å¿…é¡»è¦æ·»åŠ spark.sql.extensionså±æ€§ï¼Œå…¶å€¼ä¸ºï¼šorg.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions
+åœ¨æ·»åŠ åˆ†åŒºæ—¶è¿˜æ”¯æŒåˆ†åŒºè½¬æ¢ï¼Œè¯­æ³•å¦‚ä¸‹ï¼š
+* æ·»åŠ åˆ†åŒºï¼šALTER TABLE...ADD PARTITION FIELD
 ```scala
-   //´´½¨·ÖÇø±í
+   //åˆ›å»ºåˆ†åŒºè¡¨
 
     spark.sql(
       """
@@ -495,7 +495,7 @@ alterĞŞ¸Ä·ÖÇø£¬°üÀ¨Ìí¼Ó·ÖÇøºÍÉ¾³ı·ÖÇø£¬ÕâÖÖ·ÖÇø²Ù×÷ÔÚspark3.xÖ®ºó±»Ö§³Ö£¬
         |(2,'zhangsan','guangzhou',cast(1576843830 as timestamp))
         |""".stripMargin
     )
-    //Ìí¼ÓlocÎª·ÖÇø
+    //æ·»åŠ locä¸ºåˆ†åŒº
     spark.sql(
       """
         |alter table hive_catalog.default.alter_partition_tbl add partition field loc
@@ -514,7 +514,7 @@ alterĞŞ¸Ä·ÖÇø£¬°üÀ¨Ìí¼Ó·ÖÇøºÍÉ¾³ı·ÖÇø£¬ÕâÖÖ·ÖÇø²Ù×÷ÔÚspark3.xÖ®ºó±»Ö§³Ö£¬
         |select * from hive_catalog.default.alter_partition_tbl
         |""".stripMargin
     ).show()
-    //Ìí¼Óyears(ts)Îª·ÖÇø
+    //æ·»åŠ years(ts)ä¸ºåˆ†åŒº
     spark.sql(
       """
         |alter table hive_catalog.default.alter_partition_tbl add partition field years(ts)
@@ -559,9 +559,9 @@ Found 1 items
 -rw-r--r--   3 root hadoop       1185 2022-09-27 13:03 /apps/hive/warehouse/alter_partition_tbl/data/loc=beijing/ts_year=2021/00000-28-fb9efdb4-14e6-49af-8f99-201a81ff3465-00001.parquet
 
 ```
-Ìí¼Ó·ÖÇø×Ö¶ÎÊÇÔªÊı¾İ²Ù×÷£¬²»»á¸Ä±íÏÖÓĞµÄ±íÊı¾İ£¬ĞÂµÄÊı¾İ½«Ê¹ÓÃĞÂ·ÖÇøĞ´ÈëÊı¾İ£¬ÏÖÓĞÊı¾İ½«¼ÌĞø±£ÁôÔÚÔ­ÓĞµÄ·ÖÇø²¼¾ÖÖĞ¡£
+æ·»åŠ åˆ†åŒºå­—æ®µæ˜¯å…ƒæ•°æ®æ“ä½œï¼Œä¸ä¼šæ”¹è¡¨ç°æœ‰çš„è¡¨æ•°æ®ï¼Œæ–°çš„æ•°æ®å°†ä½¿ç”¨æ–°åˆ†åŒºå†™å…¥æ•°æ®ï¼Œç°æœ‰æ•°æ®å°†ç»§ç»­ä¿ç•™åœ¨åŸæœ‰çš„åˆ†åŒºå¸ƒå±€ä¸­ã€‚
 
-* É¾³ı·ÖÇø£ºALTER TABLE...DROP PARTITION FIELD
+* åˆ é™¤åˆ†åŒºï¼šALTER TABLE...DROP PARTITION FIELD
 
 ```scala
  spark.sql(
@@ -608,11 +608,11 @@ Found 2 items
 [root@tbds-192-168-0-37 ~]# 
 
 ```
-ÎÒÃÇ·¢ÏÖ£¬É¾³ı±íµÄloc·ÖÇø¡¢years(ts)·ÖÇøÖ®ºó,Ä¿Â¼±ä³É**loc=null/ts_year=null**£¬ºóÃæµÄĞÂÊı¾İ½«±£´æÔÚ¸ÃÂ·¾¶ÏÂ¡£
+æˆ‘ä»¬å‘ç°ï¼Œåˆ é™¤è¡¨çš„locåˆ†åŒºã€years(ts)åˆ†åŒºä¹‹å,ç›®å½•å˜æˆ**loc=null/ts_year=null**ï¼Œåé¢çš„æ–°æ•°æ®å°†ä¿å­˜åœ¨è¯¥è·¯å¾„ä¸‹ã€‚
 
-### 1.4 DataFrame API¼ÓÔØIcebergÖĞµÄÊı¾İ
-Spark ²Ù×÷Iceberg ²»½ö¿ÉÒÔÍ¨¹ıSQLµÄ·½Ê½²éÑ¯IcebergÊı¾İ£¬»¹¿ÉÒÔÊ¹ÓÃdataFrameµÄ·½Ê½¼ÓÔØµ½Iceberg±íÖĞ£¬
-¿ÉÒÔÍ¨¹ıspark.table(±íÃû)»òÕßspark.read.format(iceberg).load(iceberg data path)À´¼ÓÔØ¶ÔÓ¦µÄ±íÊı¾İ£º
+### 1.4 DataFrame APIåŠ è½½Icebergä¸­çš„æ•°æ®
+Spark æ“ä½œIceberg ä¸ä»…å¯ä»¥é€šè¿‡SQLçš„æ–¹å¼æŸ¥è¯¢Icebergæ•°æ®ï¼Œè¿˜å¯ä»¥ä½¿ç”¨dataFrameçš„æ–¹å¼åŠ è½½åˆ°Icebergè¡¨ä¸­ï¼Œ
+å¯ä»¥é€šè¿‡spark.table(è¡¨å)æˆ–è€…spark.read.format(iceberg).load(iceberg data path)æ¥åŠ è½½å¯¹åº”çš„è¡¨æ•°æ®ï¼š
 ```scala
   spark.sql(
       """
@@ -627,18 +627,18 @@ Spark ²Ù×÷Iceberg ²»½ö¿ÉÒÔÍ¨¹ıSQLµÄ·½Ê½²éÑ¯IcebergÊı¾İ£¬»¹¿ÉÒÔÊ¹ÓÃdataFrameµÄ·½Ê
         |(2, 'zhangsan', 20)
         |""".stripMargin
     )
-    // 1.1 sqlµÄ·½Ê½¶ÁÈ¡icebergµÄÊı¾İ
+    // 1.1 sqlçš„æ–¹å¼è¯»å–icebergçš„æ•°æ®
     spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
 
-    // 1.2 dataframeµÄ·½Ê½¶ÁÈ¡icebergµÄÊı¾İ
+    // 1.2 dataframeçš„æ–¹å¼è¯»å–icebergçš„æ•°æ®
     spark.table("hive_catalog.default.iceberg_test_tbl").show()
     spark.read.format("iceberg")
       .load("hdfs://hdfsCluster/apps/hive/warehouse/iceberg_test_tbl").show()
 
 ```
-### 1.5 Iceberg ²éÑ¯¿ìÕÕ
-Ã¿´ÎÏòiceberg±íÖĞcommitÊı¾İ¶¼»áÉú³É¶ÔÓ¦µÄÒ»¸ö¿ìÕÕĞÅÏ¢
-ÎÒÃÇ¿ÉÒÔÍ¨¹ı²éÑ¯catalog.db.table.snapshots À´²éÑ¯iceberg±íÖĞÓµÓĞµÄ¿ìÕÕ£¬²Ù×÷ÈçÏÂ£º
+### 1.5 Iceberg æŸ¥è¯¢å¿«ç…§
+æ¯æ¬¡å‘icebergè¡¨ä¸­commitæ•°æ®éƒ½ä¼šç”Ÿæˆå¯¹åº”çš„ä¸€ä¸ªå¿«ç…§ä¿¡æ¯
+æˆ‘ä»¬å¯ä»¥é€šè¿‡æŸ¥è¯¢catalog.db.table.snapshots æ¥æŸ¥è¯¢icebergè¡¨ä¸­æ‹¥æœ‰çš„å¿«ç…§ï¼Œæ“ä½œå¦‚ä¸‹ï¼š
 
 ```scala
   spark.sql(
@@ -687,9 +687,9 @@ Spark ²Ù×÷Iceberg ²»½ö¿ÉÒÔÍ¨¹ıSQLµÄ·½Ê½²éÑ¯IcebergÊı¾İ£¬»¹¿ÉÒÔÊ¹ÓÃdataFrameµÄ·½Ê
 +--------------------+-------------------+-------------------+---------+--------------------+--------------------+
 
 ```
-### 1.6 Iceberg ²éÑ¯±íÀúÊ·
+### 1.6 Iceberg æŸ¥è¯¢è¡¨å†å²
 
-ÎÒÃÇ¿ÉÒÔÍ¨¹ı²éÑ¯catalog.db.table.history À´²éÑ¯iceberg±íµÄÀúÊ·ĞÅÏ¢£¨±í¿ìÕÕĞÅÏ¢ÄÚÈİ£©£¬²Ù×÷ÈçÏÂ£º
+æˆ‘ä»¬å¯ä»¥é€šè¿‡æŸ¥è¯¢catalog.db.table.history æ¥æŸ¥è¯¢icebergè¡¨çš„å†å²ä¿¡æ¯ï¼ˆè¡¨å¿«ç…§ä¿¡æ¯å†…å®¹ï¼‰ï¼Œæ“ä½œå¦‚ä¸‹ï¼š
 ```scala
     spark.sql(
       """
@@ -738,7 +738,7 @@ Spark ²Ù×÷Iceberg ²»½ö¿ÉÒÔÍ¨¹ıSQLµÄ·½Ê½²éÑ¯IcebergÊı¾İ£¬»¹¿ÉÒÔÊ¹ÓÃdataFrameµÄ·½Ê
 +--------------------+-------------------+-------------------+-------------------+
 
 ```
-### 1.7 Iceberg ²éÑ¯±í data files
+### 1.7 Iceberg æŸ¥è¯¢è¡¨ data files
 {catalog}.{database}.{table}.files
 ```scala
  spark.sql(
@@ -805,7 +805,7 @@ Spark ²Ù×÷Iceberg ²»½ö¿ÉÒÔÍ¨¹ıSQLµÄ·½Ê½²éÑ¯IcebergÊı¾İ£¬»¹¿ÉÒÔÊ¹ÓÃdataFrameµÄ·½Ê
 
 ```
 
-### 1.8 Iceberg ²éÑ¯±í manifests
+### 1.8 Iceberg æŸ¥è¯¢è¡¨ manifests
 {catalog}.{database}.{table}.manifests
 
 ```scala
@@ -867,9 +867,9 @@ Spark ²Ù×÷Iceberg ²»½ö¿ÉÒÔÍ¨¹ıSQLµÄ·½Ê½²éÑ¯IcebergÊı¾İ£¬»¹¿ÉÒÔÊ¹ÓÃdataFrameµÄ·½Ê
 +--------------------+------+-----------------+-------------------+----------------------+-------------------------+------------------------+-------------------+
 
 ```
-### 1.9 Iceberg ²éÑ¯Ö¸¶¨±í¿ìÕÕÊı¾İ
-²éÑ¯Iceberg±íÊı¾İ¿ÉÒÔÖ¸¶¨snapshot-idÀ´²éÑ¯Ö¸¶¨¿ìÕÕµÄÊı¾İ£¬ÕâÖÖ·½Ê½¿ÉÒÔÊ¹ÓÃ
-dataFrame api ·½Ê½²éÑ¯£¬Spark3.x ¿ÉÒÔÍ¨¹ısql·½Ê½À´²éÑ¯£¬²Ù×÷ÈçÏÂ£º
+### 1.9 Iceberg æŸ¥è¯¢æŒ‡å®šè¡¨å¿«ç…§æ•°æ®
+æŸ¥è¯¢Icebergè¡¨æ•°æ®å¯ä»¥æŒ‡å®šsnapshot-idæ¥æŸ¥è¯¢æŒ‡å®šå¿«ç…§çš„æ•°æ®ï¼Œè¿™ç§æ–¹å¼å¯ä»¥ä½¿ç”¨
+dataFrame api æ–¹å¼æŸ¥è¯¢ï¼ŒSpark3.x å¯ä»¥é€šè¿‡sqlæ–¹å¼æ¥æŸ¥è¯¢ï¼Œæ“ä½œå¦‚ä¸‹ï¼š
 
 ```scala
         spark.sql(
@@ -887,14 +887,14 @@ dataFrame api ·½Ê½²éÑ¯£¬Spark3.x ¿ÉÒÔÍ¨¹ısql·½Ê½À´²éÑ¯£¬²Ù×÷ÈçÏÂ£º
         )
         spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
     
-        //²éÑ¯Ö¸¶¨¿ìÕÕÊı¾İ£¬¿ìÕÕID¿ÉÒÔÍ¨¹ı¶ÁÈ¡jsonÔªÊı¾İµÄÎÄ¼ş»ñÈ¡
+        //æŸ¥è¯¢æŒ‡å®šå¿«ç…§æ•°æ®ï¼Œå¿«ç…§IDå¯ä»¥é€šè¿‡è¯»å–jsonå…ƒæ•°æ®çš„æ–‡ä»¶è·å–
         spark.read
           .option("snapshot-id", 3210846780360171248L)
           .format("iceberg")
           .table("hive_catalog.default.iceberg_test_tbl")
           .show()
     
-        //spark3.x°æ±¾ Éè¶¨µ±Ç°¿ìÕÕid,sql²éÑ¯Êı¾İ
+        //spark3.xç‰ˆæœ¬ è®¾å®šå½“å‰å¿«ç…§id,sqlæŸ¥è¯¢æ•°æ®
         spark.sql(
           """
             |call hive_catalog.system.set_current_snapshot('default.iceberg_test_tbl', 3210846780360171248)
@@ -964,10 +964,10 @@ dataFrame api ·½Ê½²éÑ¯£¬Spark3.x ¿ÉÒÔÍ¨¹ısql·½Ê½À´²éÑ¯£¬²Ù×÷ÈçÏÂ£º
 +---+--------+---+
 
 ```
-### 1.10 Iceberg ¸ù¾İÊ±¼ä´Á²éÑ¯Êı¾İ
-Spark¶ÁÈ¡IcebergÊı¾İ¿ÉÒÔÖ¸¶¨¡¯as-of-timestamp¡®²ÎÊı£¬Í¨¹ıÖ¸¶¨µÄÒ»¸öºÁÃëÊ±¼ä²ÎÊı²éÑ¯iceberg±íÊı¾İ£¬
-iceberg»á¸ù¾İÔªÊı¾İÕÒ³ötimestamp-ms <= as-of-timestamp¶ÔÓ¦µÄsnapshot-id,
-spark3.xÖ§³ÖSQLÖ¸¶¨Ê±¼ä²éÑ¯Êı¾İ¡£
+### 1.10 Iceberg æ ¹æ®æ—¶é—´æˆ³æŸ¥è¯¢æ•°æ®
+Sparkè¯»å–Icebergæ•°æ®å¯ä»¥æŒ‡å®šâ€™as-of-timestampâ€˜å‚æ•°ï¼Œé€šè¿‡æŒ‡å®šçš„ä¸€ä¸ªæ¯«ç§’æ—¶é—´å‚æ•°æŸ¥è¯¢icebergè¡¨æ•°æ®ï¼Œ
+icebergä¼šæ ¹æ®å…ƒæ•°æ®æ‰¾å‡ºtimestamp-ms <= as-of-timestampå¯¹åº”çš„snapshot-id,
+spark3.xæ”¯æŒSQLæŒ‡å®šæ—¶é—´æŸ¥è¯¢æ•°æ®ã€‚
 
 ```scala
   spark.sql(
@@ -989,7 +989,7 @@ spark3.xÖ§³ÖSQLÖ¸¶¨Ê±¼ä²éÑ¯Êı¾İ¡£
       .option("as-of-timestamp", "1664268086000")
       .table("hive_catalog.default.iceberg_test_tbl")
       .show()
-    // »Ø¹öÉè¶¨µ±Ç°Ê±¼ä´Á, sql²éÑ¯µ±Ç°Êı¾İ
+    // å›æ»šè®¾å®šå½“å‰æ—¶é—´æˆ³, sqlæŸ¥è¯¢å½“å‰æ•°æ®
     spark.sql(
       """
         |CALL hive_catalog.system.rollback_to_timestamp('default.iceberg_test_tbl', TIMESTAMP '2022-09-27 16:41:26')
@@ -1056,9 +1056,9 @@ spark3.xÖ§³ÖSQLÖ¸¶¨Ê±¼ä²éÑ¯Êı¾İ¡£
 |  2|zhangsan| 20|
 +---+--------+---+
 ```
-### 1.11 Iceberg »Ø¹ö¿ìÕÕ
-iceberg¿ÉÒÔ»Ø¹ö¿ìÕÕ£¬¿ÉÒÔ½èÖúJava´úÂëÊµÏÖ£¬ dataframe api ²¢Ã»Ìá¹©¶ÔÓ¦µÄ½Ó¿Ú£¬
-spark3.x°æ±¾£¬Ö§³Ösql»Ø¹ö£¬Iceberg¶ÔÓ¦µÄ±íÖĞ»áÉú³ÉĞÂµÄSnapshot-id,ÖØĞÂ²éÑ¯£¬»Ø¹öÉúĞ§¡£
+### 1.11 Iceberg å›æ»šå¿«ç…§
+icebergå¯ä»¥å›æ»šå¿«ç…§ï¼Œå¯ä»¥å€ŸåŠ©Javaä»£ç å®ç°ï¼Œ dataframe api å¹¶æ²¡æä¾›å¯¹åº”çš„æ¥å£ï¼Œ
+spark3.xç‰ˆæœ¬ï¼Œæ”¯æŒsqlå›æ»šï¼ŒIcebergå¯¹åº”çš„è¡¨ä¸­ä¼šç”Ÿæˆæ–°çš„Snapshot-id,é‡æ–°æŸ¥è¯¢ï¼Œå›æ»šç”Ÿæ•ˆã€‚
 
 ```scala
     spark.sql(
@@ -1075,7 +1075,7 @@ spark3.x°æ±¾£¬Ö§³Ösql»Ø¹ö£¬Iceberg¶ÔÓ¦µÄ±íÖĞ»áÉú³ÉĞÂµÄSnapshot-id,ÖØĞÂ²éÑ¯£¬»Ø¹ö
         |""".stripMargin
     )
     spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
-    //1. java api ·½Ê½ »Ø¹ö¿ìÕÕ
+    //1. java api æ–¹å¼ å›æ»šå¿«ç…§
     val conf = new Configuration()
     conf.set("fs.defaultFS", "hdfs://hdfsCluster")
     conf.addResource(new Path("/usr/hdp/current/hadoop-client/etc/hadoop/hdfs-site.xml"))
@@ -1084,7 +1084,7 @@ spark3.x°æ±¾£¬Ö§³Ösql»Ø¹ö£¬Iceberg¶ÔÓ¦µÄ±íÖĞ»áÉú³ÉĞÂµÄSnapshot-id,ÖØĞÂ²éÑ¯£¬»Ø¹ö
     conf.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem")
 
     conf.setBoolean("fs.hdfs.impl.disable.cache", true)
-    //hadoop catalog Ä£Ê½
+    //hadoop catalog æ¨¡å¼
 //    val catalog = new HadoopCatalog(conf, "hdfs://hdfsCluster/apps/hive/warehouse")
     val catalog = new HiveCatalog(conf)
     catalog.setConf(conf)
@@ -1093,7 +1093,7 @@ spark3.x°æ±¾£¬Ö§³Ösql»Ø¹ö£¬Iceberg¶ÔÓ¦µÄ±íÖĞ»áÉú³ÉĞÂµÄSnapshot-id,ÖØĞÂ²éÑ¯£¬»Ø¹ö
 
     spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
 
-    //2. spark3.x°æ±¾ sql·½Ê½»Ø¹ö¿ìÕÕ
+    //2. spark3.xç‰ˆæœ¬ sqlæ–¹å¼å›æ»šå¿«ç…§
     spark.sql(
       """
         |call hive_catalog.system.rollback_to_snapshot('default.iceberg_test_tbl', 3210846780360171248)
@@ -1102,14 +1102,14 @@ spark3.x°æ±¾£¬Ö§³Ösql»Ø¹ö£¬Iceberg¶ÔÓ¦µÄ±íÖĞ»áÉú³ÉĞÂµÄSnapshot-id,ÖØĞÂ²éÑ¯£¬»Ø¹ö
     spark.sql("select * from hive_catalog.default.iceberg_test_tbl").show()
 
 ```
-### 1.12 Iceberg ºÏ²¢±íÊı¾İÎÄ¼ş
+### 1.12 Iceberg åˆå¹¶è¡¨æ•°æ®æ–‡ä»¶
 
-iceberg ±íÃ¿´Îcommit¶¼»áÉú³ÉÒ»¸öparquetÎÄ¼ş£¬ÓĞ¿ÉÄÜÒ»ÕÅ±íiceberg±í¶ÔÓ¦µÄÊı¾İÎÄ¼ş·Ç³£¶à£¬
-Í¨¹ıJava ApiµÄ·½Ê½¶Ôiceberg±í¿ÉÒÔ½øĞĞÊı¾İÎÄ¼şºÏ²¢£¬Êı¾İÎÄ¼şºÏ²¢Ö®ºó£¬»áÉú³ÉĞÂµÄSnapshot,
-Ô­ÓĞµÄÊı¾İ²¢²»»áÉ¾³ı£¬Èç¹ûÒªÉ¾³ı¶ÔÓ¦µÄÊı¾İÎÄ¼ş£¬ĞèÒªÍ¨¹ı¡®Expire snapshots¡¯:
+iceberg è¡¨æ¯æ¬¡commitéƒ½ä¼šç”Ÿæˆä¸€ä¸ªparquetæ–‡ä»¶ï¼Œæœ‰å¯èƒ½ä¸€å¼ è¡¨icebergè¡¨å¯¹åº”çš„æ•°æ®æ–‡ä»¶éå¸¸å¤šï¼Œ
+é€šè¿‡Java Apiçš„æ–¹å¼å¯¹icebergè¡¨å¯ä»¥è¿›è¡Œæ•°æ®æ–‡ä»¶åˆå¹¶ï¼Œæ•°æ®æ–‡ä»¶åˆå¹¶ä¹‹åï¼Œä¼šç”Ÿæˆæ–°çš„Snapshot,
+åŸæœ‰çš„æ•°æ®å¹¶ä¸ä¼šåˆ é™¤ï¼Œå¦‚æœè¦åˆ é™¤å¯¹åº”çš„æ•°æ®æ–‡ä»¶ï¼Œéœ€è¦é€šè¿‡â€˜Expire snapshotsâ€™:
 
 ```
-# Ô´±íĞÅÏ¢
+# æºè¡¨ä¿¡æ¯
 [root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/iceberg_test_tbl/data
 Found 52 items
 -rw-r--r--   3 root hadoop        899 2022-09-27 16:45 /apps/hive/warehouse/iceberg_test_tbl/data/00000-0-074f2e7c-744b-4407-b367-3f9edfc938c7-00001.parquet
@@ -1269,7 +1269,7 @@ Found 94 items
 26
 
 ```
-Ö´ĞĞÈçÏÂ£ººÏ²¢data files £¬ĞÂÉú³ÉÒ»·İÎÄ¼ş
+æ‰§è¡Œå¦‚ä¸‹ï¼šåˆå¹¶data files ï¼Œæ–°ç”Ÿæˆä¸€ä»½æ–‡ä»¶
 ```scala
   //TODO set hive catalog
     val hadoopConfiguration: Configuration = spark.sparkContext.hadoopConfiguration
@@ -1284,7 +1284,7 @@ Found 94 items
     hadoopConfiguration.addResource(new Path("/usr/hdp/current/hadoop-client/etc/hadoop/core-site.xml"))
     hadoopConfiguration.addResource(new Path("/usr/hdp/current/hive-client/conf/hive-site.xml"))
     hadoopConfiguration.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem")
-    //ÕâÀïÄ¬ÈÏ±¾µØ»·¾³ÊÇsimpleÈÏÖ¤
+    //è¿™é‡Œé»˜è®¤æœ¬åœ°ç¯å¢ƒæ˜¯simpleè®¤è¯
     hadoopConfiguration.set("hadoop.security.authentication", "simple")
     hadoopConfiguration.setBoolean("fs.hdfs.impl.disable.cache", true)
     UserGroupInformation.setConfiguration(hadoopConfiguration)
@@ -1297,14 +1297,14 @@ Found 94 items
 ```
 
 ```shell script
-# ĞÂÉú³ÉµÄdataÎÄ¼ş
+# æ–°ç”Ÿæˆçš„dataæ–‡ä»¶
 [root@tbds-192-168-0-37 ~]# hdfs dfs -ls -t /apps/hive/warehouse/iceberg_test_tbl/data 
 Found 53 items
 -rw-r--r--   3 root hadoop       1063 2022-09-27 23:27 /apps/hive/warehouse/iceberg_test_tbl/data/00000-0-36abff52-e845-408d-837a-81e9f97c0d7d-00001.parquet
 [root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/iceberg_test_tbl/data | wc -l
 54
 
-# ĞÂÉú³ÉµÄmetadataÎÄ¼ş
+# æ–°ç”Ÿæˆçš„metadataæ–‡ä»¶
 [root@tbds-192-168-0-37 ~]# hdfs dfs -ls -t /apps/hive/warehouse/iceberg_test_tbl/metadata
 Found 104 items
 -rw-r--r--   3 root hadoop      33453 2022-09-27 23:27 /apps/hive/warehouse/iceberg_test_tbl/metadata/00042-a7ce2d78-48d2-481b-90e5-3e67ca4738b1.metadata.json
@@ -1322,26 +1322,26 @@ Found 104 items
 [root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/iceberg_test_tbl/metadata | grep snap |wc -l
 27
 ```
-### 1.13 Iceberg É¾³ıÀúÊ·¿ìÕÕ
-Ä¿Ç°¿ÉÒÔÍ¨Java Api É¾³ıÀúÊ·¿ìÕÕ£¬¿ÉÒÔÍ¨¹ıÖ¸¶¨Ê±¼ä´Á£¬µ±Ç°Ê±¼ä´ÁÖ®Ç°µÄ¿ìÕÕ¶¼»á±»É¾³ı£¬
-×¢Òâ£ºÈç¹ûÖ¸¶¨µÄÊ±¼ä±È×îºóµÄ¿ìÕÕÊ±¼ä»¹´ó£¬»¹ÊÇ»á±£Áô×îºóÒ»·İ¿ìÕÕÊı¾İ£¬
-¿ÉÒÔÍ¨¹ı²é¿´ÔªÊı¾İµÄjsonÎÄ¼şÀ´²éÕÒÖ¸¶¨µÄÊ±¼ä¡£
-ÔÚÉ¾³ı¿ìÕÕµÄÊ±ºò£¬Êı¾İdataÄ¿Â¼ÏÂ¹ıÆÚµÄÊı¾İparquetÎÄ¼şÒ²»áÉ¾³ı£¬±ÈÈç¿ìÕÕ»Ø¹öºó²»ĞèÒªµÄÎÄ¼ş¡£
+### 1.13 Iceberg åˆ é™¤å†å²å¿«ç…§
+ç›®å‰å¯ä»¥é€šJava Api åˆ é™¤å†å²å¿«ç…§ï¼Œå¯ä»¥é€šè¿‡æŒ‡å®šæ—¶é—´æˆ³ï¼Œå½“å‰æ—¶é—´æˆ³ä¹‹å‰çš„å¿«ç…§éƒ½ä¼šè¢«åˆ é™¤ï¼Œ
+æ³¨æ„ï¼šå¦‚æœæŒ‡å®šçš„æ—¶é—´æ¯”æœ€åçš„å¿«ç…§æ—¶é—´è¿˜å¤§ï¼Œè¿˜æ˜¯ä¼šä¿ç•™æœ€åä¸€ä»½å¿«ç…§æ•°æ®ï¼Œ
+å¯ä»¥é€šè¿‡æŸ¥çœ‹å…ƒæ•°æ®çš„jsonæ–‡ä»¶æ¥æŸ¥æ‰¾æŒ‡å®šçš„æ—¶é—´ã€‚
+åœ¨åˆ é™¤å¿«ç…§çš„æ—¶å€™ï¼Œæ•°æ®dataç›®å½•ä¸‹è¿‡æœŸçš„æ•°æ®parquetæ–‡ä»¶ä¹Ÿä¼šåˆ é™¤ï¼Œæ¯”å¦‚å¿«ç…§å›æ»šåä¸éœ€è¦çš„æ–‡ä»¶ã€‚
 
-µ½µ×ÄÇĞ©parquetÎÄ¼ş±»É¾³ı£¬È¡¾öÓÚ¡®xxx-snap-xx.avro¡¯ÖĞ¶ÔÓ¦µÄmanifest listÎÄ¼şÊı¾İ¶ÔÓ¦µÄparquetÎÄ¼ş¡£
+åˆ°åº•é‚£äº›parquetæ–‡ä»¶è¢«åˆ é™¤ï¼Œå–å†³äºâ€˜xxx-snap-xx.avroâ€™ä¸­å¯¹åº”çš„manifest listæ–‡ä»¶æ•°æ®å¯¹åº”çš„parquetæ–‡ä»¶ã€‚
 
 ```scala
     table.expireSnapshots().expireOlderThan(1664292360000L).commit()
 ```
 
 ```shell script
-#ÔªÊı¾İÎÄ¼ş
+#å…ƒæ•°æ®æ–‡ä»¶
 [root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/iceberg_test_tbl/metadata | wc -l
 54
 [root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/iceberg_test_tbl/metadata | grep snap |wc -l
 1
 
-#Êı¾İÎÄ¼ş
+#æ•°æ®æ–‡ä»¶
 [root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/iceberg_test_tbl/data | wc -l
 16
 
@@ -1378,14 +1378,14 @@ Found 104 items
 
 
 ```
-**²¹³ä£º**
-Èç¹ûÏëÒªÔÚcommitµÄÊ±ºò£¬´¥·¢É¾³ı¿ìÕÕ¿ÉÒÔÔÚ½¨±íµÄÊ±ºòÖ¸¶¨ÈçÏÂÁ½¸öÊôĞÔ£º
+**è¡¥å……ï¼š**
+å¦‚æœæƒ³è¦åœ¨commitçš„æ—¶å€™ï¼Œè§¦å‘åˆ é™¤å¿«ç…§å¯ä»¥åœ¨å»ºè¡¨çš„æ—¶å€™æŒ‡å®šå¦‚ä¸‹ä¸¤ä¸ªå±æ€§ï¼š
 ```shell script
-# ±£Áô×î½ü3¸ö¿ìÕÕ
+# ä¿ç•™æœ€è¿‘3ä¸ªå¿«ç…§
 'write.metadata.delete-after-commit.enabled'= true
 'write.metadata.previous-versions-max' = 3
 
-# ÑùÀı
+# æ ·ä¾‹
 create table if not exists test_tbl(
 id int,
 name string
@@ -1396,26 +1396,26 @@ TBLPROPERTIES  (
 )
 ```
 ### 1.14 iceberg insert into 
-'insert into ' ÊÇÏòiceberg ±í²åÈëÊı¾İ£º
+'insert into ' æ˜¯å‘iceberg è¡¨æ’å…¥æ•°æ®ï¼š
 * insert into tbl values (xxx)
 * insert into tbl select ...
 
 
 ### 1.15 iceberg merge into 
-iceberg 'merge into ' ¿ÉÒÔ¶Ô±íÊı¾İ½øĞĞĞĞ¼¶¸üĞÂ»òÉ¾³ı£¬
-spark3.x °æ±¾Ö®ºó£¬ÆäÔ­ÀíÊÇ°üº¬ĞèÒªÉ¾³ıºÍ¸üĞÂĞĞÊı¾İËùÔÚµÄdata files.
-'merge into '¿ÉÒÔÊ¹ÓÃÒ»¸ö²éÑ¯½á¹ûÊı¾İÀ´¸üĞÂÄ¿±ê±íÊı¾İ£¬ÆäÓï·¨ºÍjoinÀàËÆ£¬¸ù¾İ
-Ö¸¶¨µÄÆ¥ÅäÌí¼Ó¶ÔÆ¥ÅäÊı¾İ½øĞĞÏàÓ¦µÄ²Ù×÷¡£
-Ê¾Àı£º
+iceberg 'merge into ' å¯ä»¥å¯¹è¡¨æ•°æ®è¿›è¡Œè¡Œçº§æ›´æ–°æˆ–åˆ é™¤ï¼Œ
+spark3.x ç‰ˆæœ¬ä¹‹åï¼Œå…¶åŸç†æ˜¯åŒ…å«éœ€è¦åˆ é™¤å’Œæ›´æ–°è¡Œæ•°æ®æ‰€åœ¨çš„data files.
+'merge into 'å¯ä»¥ä½¿ç”¨ä¸€ä¸ªæŸ¥è¯¢ç»“æœæ•°æ®æ¥æ›´æ–°ç›®æ ‡è¡¨æ•°æ®ï¼Œå…¶è¯­æ³•å’Œjoinç±»ä¼¼ï¼Œæ ¹æ®
+æŒ‡å®šçš„åŒ¹é…æ·»åŠ å¯¹åŒ¹é…æ•°æ®è¿›è¡Œç›¸åº”çš„æ“ä½œã€‚
+ç¤ºä¾‹ï¼š
 
 ```sql
 MERGE INTO tbl t 
 USING (SELECT ...) s
 ON t.id = s.id
-WHEN MATCHED AND ... THEN DELETE -- É¾³ı
-WHEN MATCHED AND ... THEN UPDATE SET ... -- ¸üĞÂ
-WHEN MATCHED AND ... AND ... THEN UPDATE SET ... -- ¶àÌõ¼ş¸üĞÂ
-WHEN NOT MATCHED AND ... THEN INSERT (col1, col2,...) VALUE (s.col1, s.co2, ...) -- Æ¥Åä²»ÉÏÏòÄ¿±ê±í²åÈëÊı¾İ
+WHEN MATCHED AND ... THEN DELETE -- åˆ é™¤
+WHEN MATCHED AND ... THEN UPDATE SET ... -- æ›´æ–°
+WHEN MATCHED AND ... AND ... THEN UPDATE SET ... -- å¤šæ¡ä»¶æ›´æ–°
+WHEN NOT MATCHED AND ... THEN INSERT (col1, col2,...) VALUE (s.col1, s.co2, ...) -- åŒ¹é…ä¸ä¸Šå‘ç›®æ ‡è¡¨æ’å…¥æ•°æ®
 ```
 ```scala
  spark.sql("drop table  if exists hive_catalog.default.a")
@@ -1433,7 +1433,7 @@ WHEN NOT MATCHED AND ... THEN INSERT (col1, col2,...) VALUE (s.col1, s.co2, ...)
         |insert into hive_catalog.default.a values(1, 'rison', 18),(2, 'zhangsan',20),(3, 'lisi', 22)
         |""".stripMargin)
     spark.sql("select * from hive_catalog.default.a").show()
-    //´´½¨±íb
+    //åˆ›å»ºè¡¨b
     spark.sql("drop table if exists hive_catalog.default.b")
     spark.sql(
       """
@@ -1451,7 +1451,7 @@ WHEN NOT MATCHED AND ... THEN INSERT (col1, col2,...) VALUE (s.col1, s.co2, ...)
         |""".stripMargin)
     spark.sql("select * from hive_catalog.default.b").show()
 
-    //TODO MERGE INTO Ïòsource±í¸üĞÂ¡¢É¾³ı¡¢ĞÂÔöÊı¾İ
+    //TODO MERGE INTO å‘sourceè¡¨æ›´æ–°ã€åˆ é™¤ã€æ–°å¢æ•°æ®
     spark.sql(
       """
         |merge into hive_catalog.default.a t1
@@ -1469,7 +1469,7 @@ WHEN NOT MATCHED AND ... THEN INSERT (col1, col2,...) VALUE (s.col1, s.co2, ...)
 
 ```shell script
 
-# a±í
+# aè¡¨
 +---+--------+---+
 | id|    name|age|
 +---+--------+---+
@@ -1477,7 +1477,7 @@ WHEN NOT MATCHED AND ... THEN INSERT (col1, col2,...) VALUE (s.col1, s.co2, ...)
 |  2|zhangsan| 20|
 |  3|    lisi| 22|
 +---+--------+---+
-# b±í
+# bè¡¨
 +---+------------+---+---+
 | id|        name|age| op|
 +---+------------+---+---+
@@ -1486,7 +1486,7 @@ WHEN NOT MATCHED AND ... THEN INSERT (col1, col2,...) VALUE (s.col1, s.co2, ...)
 |  4|    new boy1| 22|  I|
 |  5|    new boy2| 22|  I|
 +---+------------+---+---+
-# merge into Ö®ºóµÄ a ±í
+# merge into ä¹‹åçš„ a è¡¨
 +---+------------+---+
 | id|        name|age|
 +---+------------+---+
@@ -1498,19 +1498,19 @@ WHEN NOT MATCHED AND ... THEN INSERT (col1, col2,...) VALUE (s.col1, s.co2, ...)
 
 ```
 ### 1.16 iceberg insert overwrite
-'insert overwrite' ¿ÉÒÔ¸²¸Çiceberg±íÊı¾İ£¬ÕâÖÖ²Ù×÷»á½«±íµÄÈ«²¿Êı¾İ¸øÌæ»»µô£¬
-½¨ÒéÈç¹û²¿·ÖÊı¾İÌæ»»²Ù×÷£¬¿ÉÒÔÊÇÓÃÉÏÎÄÌáµ½µÄ¡®merge into¡¯.
-¶ÔÓÚIceberg·ÖÇø±íÊı¾İ£¬Ê¹ÓÃ¡®insert overwrite¡¯²Ù×÷Ê±£¬ÓĞÁ½ÖÖÇé¿ö£º
-* ¶¯Ì¬¸²¸Ç
-¶¯Ì¬¸²¸Ç»áÈ«Á¿µÄ½«Ô­ÓĞµÄÊı¾İ¸²¸Ç£¬²¢½«ĞÂ²åÈëµÄÊı¾İ¸ù¾İicebergµÄ·ÖÇø¹æÔò×Ô¶¯·ÖÇø£¬ÀàËÆ
-hiveµÄ¶¯Ì¬·ÖÇø¡£
-* ¾²Ì¬¸²¸Ç
-¾²Ì¬¸²¸ÇĞèÒªÔÚÏòIcebergÖĞ²åÈëÊı¾İÊ±ĞèÒªÊÖ¶¯Ö¸¶¨·ÖÇø£¬Èç¹ûµ±Ç°Iceberg±í´æÔÚÕâ¸ö·ÖÇø£¬
-ÄÇÃ´Ö»ÓĞÕâ¸ö·ÖÇøµÄÊı¾İ±»¸²¸Ç£¬ÆäËû·ÖÇø²»ÊÜÓ°Ïì£¬Èç¹ûiceberg±í²»´æÔÚÕâ¸ö·ÖÇø£¬ÄÇÃ´Ïàµ±ÓÚ¸øIceberg
-±íÔö¼ÓÁËÒ»¸ö·ÖÇø¡£
+'insert overwrite' å¯ä»¥è¦†ç›–icebergè¡¨æ•°æ®ï¼Œè¿™ç§æ“ä½œä¼šå°†è¡¨çš„å…¨éƒ¨æ•°æ®ç»™æ›¿æ¢æ‰ï¼Œ
+å»ºè®®å¦‚æœéƒ¨åˆ†æ•°æ®æ›¿æ¢æ“ä½œï¼Œå¯ä»¥æ˜¯ç”¨ä¸Šæ–‡æåˆ°çš„â€˜merge intoâ€™.
+å¯¹äºIcebergåˆ†åŒºè¡¨æ•°æ®ï¼Œä½¿ç”¨â€˜insert overwriteâ€™æ“ä½œæ—¶ï¼Œæœ‰ä¸¤ç§æƒ…å†µï¼š
+* åŠ¨æ€è¦†ç›–
+åŠ¨æ€è¦†ç›–ä¼šå…¨é‡çš„å°†åŸæœ‰çš„æ•°æ®è¦†ç›–ï¼Œå¹¶å°†æ–°æ’å…¥çš„æ•°æ®æ ¹æ®icebergçš„åˆ†åŒºè§„åˆ™è‡ªåŠ¨åˆ†åŒºï¼Œç±»ä¼¼
+hiveçš„åŠ¨æ€åˆ†åŒºã€‚
+* é™æ€è¦†ç›–
+é™æ€è¦†ç›–éœ€è¦åœ¨å‘Icebergä¸­æ’å…¥æ•°æ®æ—¶éœ€è¦æ‰‹åŠ¨æŒ‡å®šåˆ†åŒºï¼Œå¦‚æœå½“å‰Icebergè¡¨å­˜åœ¨è¿™ä¸ªåˆ†åŒºï¼Œ
+é‚£ä¹ˆåªæœ‰è¿™ä¸ªåˆ†åŒºçš„æ•°æ®è¢«è¦†ç›–ï¼Œå…¶ä»–åˆ†åŒºä¸å—å½±å“ï¼Œå¦‚æœicebergè¡¨ä¸å­˜åœ¨è¿™ä¸ªåˆ†åŒºï¼Œé‚£ä¹ˆç›¸å½“äºç»™Iceberg
+è¡¨å¢åŠ äº†ä¸€ä¸ªåˆ†åŒºã€‚
 
 ```scala
- //t1 ·ÖÇø±í
+ //t1 åˆ†åŒºè¡¨
     spark.sql(
       """
         |create table if not exists hive_catalog.default.over_write_tbl(
@@ -1531,7 +1531,7 @@ hiveµÄ¶¯Ì¬·ÖÇø¡£
         |""".stripMargin
     )
     spark.sql("select * from hive_catalog.default.over_write_tbl").show()
-    //t2 ²»·ÖÇø±í
+    //t2 ä¸åˆ†åŒºè¡¨
     spark.sql(
       """
         |create table if not exists hive_catalog.default.over_write_tbl2(
@@ -1551,7 +1551,7 @@ hiveµÄ¶¯Ì¬·ÖÇø¡£
         |""".stripMargin
     )
     spark.sql("select * from hive_catalog.default.over_write_tbl2").show()
-    //t3 ²âÊÔ±í
+    //t3 æµ‹è¯•è¡¨
     spark.sql(
       """
         |create table if not exists hive_catalog.default.over_write_tbl3(
@@ -1572,7 +1572,7 @@ hiveµÄ¶¯Ì¬·ÖÇø¡£
     )
     spark.sql("select * from hive_catalog.default.over_write_tbl3").show()
 
-    //TODO insert overwrite t3 µ½ t2
+    //TODO insert overwrite t3 åˆ° t2
     spark.sql(
       """
         |insert overwrite hive_catalog.default.over_write_tbl2
@@ -1580,7 +1580,7 @@ hiveµÄ¶¯Ì¬·ÖÇø¡£
         |""".stripMargin)
 
     spark.sql("select * from hive_catalog.default.over_write_tbl2").show()
-    //TODO insert overwrite ¶¯Ì¬·ÖÇø t3 µ½ t1
+    //TODO insert overwrite åŠ¨æ€åˆ†åŒº t3 åˆ° t1
     spark.sql(
       """
         |insert overwrite hive_catalog.default.over_write_tbl
@@ -1588,7 +1588,7 @@ hiveµÄ¶¯Ì¬·ÖÇø¡£
         |""".stripMargin)
     spark.sql("select * from hive_catalog.default.over_write_tbl").show()
 
-    //TODO insert overwrite ¾²Ì¬·ÖÇø t3 µ½ t1 (ÕâÀït3¾Í²»ÄÜ²éÑ¯·ÖÇøÁĞÁË)
+    //TODO insert overwrite é™æ€åˆ†åŒº t3 åˆ° t1 (è¿™é‡Œt3å°±ä¸èƒ½æŸ¥è¯¢åˆ†åŒºåˆ—äº†)
     spark.sql(
       """
         |insert overwrite hive_catalog.default.over_write_tbl
@@ -1599,7 +1599,7 @@ hiveµÄ¶¯Ì¬·ÖÇø¡£
 ```
 
 ```shell script
-# t1 ±í
+# t1 è¡¨
 +---+--------+---------+
 | id|    name|      loc|
 +---+--------+---------+
@@ -1607,7 +1607,7 @@ hiveµÄ¶¯Ì¬·ÖÇø¡£
 |  2|zhangsan|guangzhou|
 |  3|    lisi| shagnhai|
 +---+--------+---------+
-# t2 ±í
+# t2 è¡¨
 +---+--------+---------+
 | id|    name|      loc|
 +---+--------+---------+
@@ -1615,7 +1615,7 @@ hiveµÄ¶¯Ì¬·ÖÇø¡£
 |  2|zhangsan|guangzhou|
 |  3|    lisi| shagnhai|
 +---+--------+---------+
-# t3 ±í
+# t3 è¡¨
 +---+------------+---------+
 | id|        name|      loc|
 +---+------------+---------+
@@ -1623,7 +1623,7 @@ hiveµÄ¶¯Ì¬·ÖÇø¡£
 |  3|        lisi|     addr|
 |  2|zhangsan_new|guangzhou|
 +---+------------+---------+
-# t3±íoverwrite µ½ t3
+# t3è¡¨overwrite åˆ° t3
 +---+------------+---------+
 | id|        name|      loc|
 +---+------------+---------+
@@ -1631,7 +1631,7 @@ hiveµÄ¶¯Ì¬·ÖÇø¡£
 |  3|        lisi|     addr|
 |  2|zhangsan_new|guangzhou|
 +---+------------+---------+
-# t3 ¶¯Ì¬·ÖÇø overwrite µ½ t1
+# t3 åŠ¨æ€åˆ†åŒº overwrite åˆ° t1
 +---+------------+---------+
 | id|        name|      loc|
 +---+------------+---------+
@@ -1639,7 +1639,7 @@ hiveµÄ¶¯Ì¬·ÖÇø¡£
 |  3|        lisi|     addr|
 |  2|zhangsan_new|guangzhou|
 +---+------------+---------+
-# t3 ¾²Ì¬·ÖÇø overwrite µ½ t1
+# t3 é™æ€åˆ†åŒº overwrite åˆ° t1
 +---+------------+---------+
 | id|        name|      loc|
 +---+------------+---------+
@@ -1651,9 +1651,139 @@ hiveµÄ¶¯Ì¬·ÖÇø¡£
 |  2|zhangsan_new|guangzhou|
 +---+------------+---------+
 
+```
+### 1.17 iceberg delete from
+Spark3.x ç‰ˆæœ¬ä¹‹åæ”¯æŒ â€˜delete fromâ€™ å¯ä»¥æ ¹æ®æŒ‡å®šçš„where æ¡ä»¶æ¥åˆ é™¤è¡¨ä¸­æ•°æ®ï¼Œ
+å¦‚æœwhere
+
+### æ‰©å±•è¡¥å……
+
+ * è¿™é‡Œè·¨é›†ç¾¤è¿ç§»icebergæ•°æ®ï¼Œå¦‚æœæ˜¯hive catalog æ–¹å¼ï¼Œå¯èƒ½è¦ä¿®æ”¹â€˜metadata_locationâ€™æ•°æ®ï¼ŒæŒ‡å‘å¯¹åº”çš„hdfs-> /metadata/xx-metadata-xx.jsonæ–‡ä»¶è·¯å¾„ã€‚
+ 
+```sql
+SELECT * FROM HIVE.TABLE_PARAMS WHERE TBL_ID=18;
+
++--------+-----------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| TBL_ID | PARAM_KEY                                     | PARAM_VALUE                                                                                                                                                                                                                                                                                                                             |
++--------+-----------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|     18 | EXTERNAL                                      | TRUE                                                                                                                                                                                                                                                                                                                                    |
+|     18 | commit.manifest-merge.enabled                 | true                                                                                                                                                                                                                                                                                                                                    |
+|     18 | commit.manifest.min-count-to-merge            | 1                                                                                                                                                                                                                                                                                                                                       |
+|     18 | commit.manifest.target-size-bytes             | 838860800                                                                                                                                                                                                                                                                                                                               |
+|     18 | compatibility.snapshot-id-inheritance.enabled | false                                                                                                                                                                                                                                                                                                                                   |
+|     18 | current-schema                                | {"type":"struct","schema-id":0,"fields":[{"id":1,"name":"id","required":false,"type":"string"},{"id":2,"name":"name","required":false,"type":"string"}]}                                                                                                                                                                                |
+|     18 | current-snapshot-id                           | 1691393085342239564                                                                                                                                                                                                                                                                                                                     |
+|     18 | current-snapshot-summary                      | {"spark.app.id":"local-1664416033542","engine":"spark-3.1","jobType":"batch","added-data-files":"1","added-records":"1","added-files-size":"632","changed-partition-count":"1","total-records":"3","total-files-size":"1896","total-data-files":"3","total-delete-files":"0","total-position-deletes":"0","total-equality-deletes":"0"} |
+|     18 | current-snapshot-timestamp-ms                 | 1664418399827                                                                                                                                                                                                                                                                                                                           |
+|     18 | datafile-nums-to-merge                        | 1                                                                                                                                                                                                                                                                                                                                       |
+|     18 | datafile-nums-to-rewrite                      | 1                                                                                                                                                                                                                                                                                                                                       |
+|     18 | from-snapshot-id                              | -1                                                                                                                                                                                                                                                                                                                                      |
+|     18 | history.expire.max-snapshot-age-ms            | 1000                                                                                                                                                                                                                                                                                                                                    |
+|     18 | history.expire.min-snapshots-to-keep          | 1                                                                                                                                                                                                                                                                                                                                       |
+|     18 | metadata_location                             | hdfs://hdfsCluster/apps/hive/warehouse/rison_db.db/rison_iceberg_tbl/metadata/00005-9247d728-cd14-42d6-bf05-4ca83668205f.metadata.json                                                                                                                                                                                                  |
+|     18 | new-snapshot-nums-to-merge                    | 1                                                                                                                                                                                                                                                                                                                                       |
+|     18 | numFiles                                      | 3                                                                                                                                                                                                                                                                                                                                       |
+|     18 | numRows                                       | 3                                                                                                                                                                                                                                                                                                                                       |
+|     18 | owner                                         | admin                                                                                                                                                                                                                                                                                                                                   |
+|     18 | previous_metadata_location                    | hdfs://hdfsCluster/apps/hive/warehouse/rison_db.db/rison_iceberg_tbl/metadata/00004-791c2c37-e51a-433c-8021-c4dc84153a35.metadata.json                                                                                                                                                                                                  |
+|     18 | small-file-threshold-bytes                    | 1048576000                                                                                                                                                                                                                                                                                                                              |
+|     18 | snapshot-count                                | 3                                                                                                                                                                                                                                                                                                                                       |
+|     18 | snapshot-nums-to-rewrite                      | 1                                                                                                                                                                                                                                                                                                                                       |
+|     18 | snapshot.retain-last.minutes                  | 0                                                                                                                                                                                                                                                                                                                                       |
+|     18 | snapshot.retain-last.nums                     | 1                                                                                                                                                                                                                                                                                                                                       |
+|     18 | table_spec_internal_v_0_1_1                   | []                                                                                                                                                                                                                                                                                                                                      |
+|     18 | table_type                                    | ICEBERG                                                                                                                                                                                                                                                                                                                                 |
+|     18 | totalSize                                     | 1896                                                                                                                                                                                                                                                                                                                                    |
+|     18 | transient_lastDdlTime                         | 1664416095                                                                                                                                                                                                                                                                                                                              |
+|     18 | uuid                                          | 521f5243-3bab-496c-a54f-ef246450e165                                                                                                                                                                                                                                                                                                    |
+|     18 | write.distribution-mode                       | hash                                                                                                                                                                                                                                                                                                                                    |
+|     18 | write.metadata.delete-after-commit.enabled    | true                                                                                                                                                                                                                                                                                                                                    |
+|     18 | write.metadata.previous-versions-max          | 1                                                                                                                                                                                                                                                                                                                                       |
+|     18 | write.parquet.page-size-bytes                 | 64000000                                                                                                                                                                                                                                                                                                                                |
+|     18 | write.spark.fanout.enabled                    | false                                                                                                                                                                                                                                                                                                                                   |
+|     18 | write.summary.partition-limit                 | 0                                                                                                                                                                                                                                                                                                                                       |
+|     18 | write.target-file-size-bytes                  | 536870912                                                                                                                                                                                                                                                                                                                               |
+|     18 | write.wap.enabled                             | false                                                                                                                                                                                                                                                                                                                                   |
++--------+-----------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 ```
 
+* æ·»åŠ  TBLPROPERTIES é…ç½®å‚æ•°
+æ·»åŠ Icebergé…ç½®å‚æ•°ï¼Œå¯ä»¥åœ¨å»ºè¡¨çš„æ—¶å€™åˆ›å»ºä¹Ÿå¯ä»¥åœ¨å»ºè¡¨ä¹‹åä¿®æ”¹ï¼Œä¸»è¦æ˜¯ç”¨æ¥ä¼˜åŒ–å°æ–‡ä»¶çš„ç”Ÿæˆé¢‘ç‡
+ä¸»è¦çš„å‚æ•°è¯´æ˜ï¼š
+
+> metadataè®¾ç½®
+
+|å‚æ•°|è¯´æ˜|
+|:--------------------------------------------------|:----------------------------------------------|
+|'write.metadata.delete-after-commit.enabled'=true, | -- åœ¨ä¸€æ¬¡commitååˆ é™¤æ—§metadata.json é»˜è®¤false å¦|
+|'write.metadata.previous-versions-max'=5,| -- ä¿ç•™å¤šå°‘ä¸ªmetadata(.json)æ–‡ä»¶, é»˜è®¤ 100 æœ€ç»ˆå½±å“metadata.jsonçš„æ•°é‡|
+
+ 
+> snapshotè®¾ç½®
+
+|å‚æ•°|è¯´æ˜|
+|:--------------------------------------------------|:----------------------------------------------|
+|"from-snapshot-id"="0" | --è®¾ç½®æ•°æ®ä»å“ªä¸ªsnapshotIdå¼€å§‹åšæœ‰æ•ˆæ•°æ®ï¼Œç”¨äºè¿›è¡Œå¢é‡æˆ–åŒºé—´æ•°æ®æŸ¥è¯¢ï¼Œé»˜è®¤nullå…¨é‡æ•°æ®|
+|'history.expire.max-snapshot-age-ms'=120000, | -- Default max age of snapshots to keep while expiring snapshots é»˜è®¤5å¤©å‰çš„è¿‡æœŸï¼›ï¼ˆæ ‡è®°æ–‡ä»¶æ˜¯å¦è¿‡æœŸçš„æ ‡å‡†ï¼‰è¿™ä¸ªä¼šè®©å…¶å®ƒsnapshotå—å¾ˆå¤§çš„å½±å“ï¼Œä¸»è¦ç”¨è¿™ä¸ªæ¥æ ‡è®°æ˜¯å¦æ˜¯è¿‡æœŸæ–‡ä»¶ï¼Œæ¯”å¦‚ï¼šè®¾ç½®snapshot.retain-last.nums=1ï¼ŒæŒ‰é“ç†åº”è¯¥æ˜¯60ç§’é’±çš„ç®—è¿‡æœŸï¼Œä½†å› ä¸ºç³»ç»Ÿhistory.expire.max-snapshot-age-msé»˜è®¤5å¤©ä¹‹å‰çš„æ‰æ ‡è®°è¿‡æœŸï¼Œäº”å¤©å†…çš„éƒ½ä¸æ˜¯è¿‡æœŸæ–‡ä»¶ï¼Œè¿™ä¸ªå…¶å®ƒå‚æ•°å°±çœ‹èµ·æ¥æ²¡æœ‰æ•ˆæœäº†ã€‚|
+|'history.expire.min-snapshots-to-keep'=2, |--Default min number of snapshots to keep while expiring snapshots é»˜è®¤ è‡³å°‘ä¿ç•™1ä¸ªã€‚ä¸ç®¡æ˜¯å¦æ ‡è®°è¿‡æœŸï¼Œè‡³å°‘ä¿ç•™å¤šå°‘ä¸ªsnap-xx.avroæ–‡ä»¶|
+|'snapshot.retain-last.minutes'=0, |-- é»˜è®¤å€¼ 0 è¡¨ç¤ºå®Œæˆ rewrite ä¸expireè§¦å‘æ—¶ï¼Œæ¸…ç†æ‰è¿‡æœŸçš„snap-xx.avroæ–‡ä»¶ï¼Œå…¶å®ƒæ•°å­—è¡¨ç¤ºä¿ç•™æœ€è¿‘å¤šå°‘åˆ†é’Ÿçš„snap-xx.avroæ–‡ä»¶|
+|'snapshot.retain-last.nums'=2, |--ä¿ç•™æœ€è¿‘å¤šå°‘ä¸ªsnapshotï¼Œå…¶ä»–çš„expireè§¦å‘æ˜¯æ¸…ç†è¿‡æœŸsnap-xx.avroæ–‡ä»¶ï¼Œé»˜è®¤ 10|
+|'new-snapshot-nums-to-merge'=2, |--expireè§¦å‘æ¸…ç†æ–‡ä»¶ï¼Œè‡³å°‘2ä¸ªæ‰èƒ½è§¦å‘snap-xx.avroæ–‡ä»¶åˆå¹¶|
+|'snapshot-nums-to-rewrite'=2, |-- æ–°ç”Ÿæˆå¤šå°‘ä¸ªsnapshot æ‰§è¡Œrewrite æ“ä½œ é»˜è®¤ 3ä¸ªï¼ˆä¸ä¸Šé¢å¯èƒ½æ˜¯ä¸åŒç‰ˆæœ¬å‚æ•°ï¼‰|
+|'compatibility.snapshot-id-inheritance.enabled'=false,| -- Enables committing snapshots without explicit snapshot IDs é»˜è®¤ falseï¼›æ˜¯å¦å…è®¸æ²¡æœ‰shaphostIdçš„ç‰ˆæœ¬æ•°æ®æäº¤ï¼Œä¸å»ºè®®è®¾ç½®trueï¼Œä¸å¥½ç®¡ç†ã€‚|
 
 
-## 2. Flink ²Ù×÷ Iceberg
+
+> mainfest(*.avroæ–‡ä»¶)è®¾ç½®
+
+|å‚æ•°|è¯´æ˜|
+|:--------------------------------------------------|:----------------------------------------------|
+|'commit.manifest-merge.enabled'=true, |--commitåï¼Œæ˜¯å¦è‡ªåŠ¨åˆå¹¶manifest(*.avroæ–‡ä»¶)ï¼Œé»˜è®¤æ˜¯true |
+|'commit.manifest.min-count-to-merge'=2,| --å•ä¸ªsnapshotidä¸‹çš„manifest(*.avroæ–‡ä»¶) å¼€å§‹è§¦å‘merge çš„ä¸€ä¸ªæ•°å€¼|
+|'commit.manifest.target-size-bytes'=8388608, |--manifest(*.avro) åˆå¹¶åçš„ç›®æ ‡å¤§å°ï¼ŒTarget size when merging manifest files é»˜è®¤8Mb|
+
+> dataæ–‡ä»¶(*.parqeut) è®¾ç½®
+
+|å‚æ•°|è¯´æ˜|
+|:--------------------------------------------------|:----------------------------------------------|
+|'datafile-nums-to-rewrite'=2, |--æ–°ç”Ÿæˆå¤šå°‘ä¸ªdatafile æ‰§è¡Œrewrite çš„æ“ä½œ é»˜è®¤ 100ä¸ª|
+|'datafile-nums-to-merge'=2, |-- è‡³å°‘å¤šå°‘ä¸ªdatafile æ‰å»merge ï¼ˆå®˜ç½‘æ²¡çœ‹åˆ°è¿™ä¸ªå‚æ•° https://km.woa.com/group/35526/articles/show/461873?kmref=search&from_page=1&no=5ï¼‰|
+|'write.target-file-size-bytes'=536870912,| --Controls the size of files generated to target about this many bytes morf  512mã€‚å†™æ–‡ä»¶å¤§å°æ ‡å‡†ï¼Œä¸æ¸…æ¥šæ˜¯ä¸æ˜¯æ‰€æœ‰æ–‡ä»¶å†™å…¥å¤§å°æ ‡å‡†è¿˜æ˜¯datafileæ–‡ä»¶ã€‚|
+|'write.parquet.page-size-bytes'=6400000, |--  parquetæ ¼å¼æ•°æ®æ–‡ä»¶ä¸€é¡µç›®æ ‡å¤§å°|
+|'write.distribution-mode'='hash' , |-- none è¡¨ç¤ºä¸åˆ†åŒºï¼Œhash è¡¨ç¤ºåšhashåˆ†åŒºå¯èƒ½æ•°æ®å‡è¡¡éœ€è¦ï¼Œä¸»è¦ä½œç”¨äºpartitionåˆ†åŒºã€‚|
+|'write.wap.enabled'=false,| -- Enables write-audit-publish writes é»˜è®¤falseï¼›|
+|'write.summary.partition-limit'=0,| -- Includes partition-level summary stats in snapshot summaries if the changed partition count is less than this limit é»˜è®¤0ï¼›|
+|'write.spark.fanout.enabled'=false| -- Enables Partitioned-Fanout-Writer writes in Spark é»˜è®¤falseï¼›|
+
+
+
+
+```sql
+ALTER TABLE ${catalog.db.table} SET TBLPROPERTIES ( 
+'small-file-threshold-bytes'=1048576000,
+'write.metadata.delete-after-commit.enabled'=true,
+'write.metadata.previous-versions-max'=1,
+'from-snapshot-id'='-1',
+'history.expire.max-snapshot-age-ms'=1000,
+'history.expire.min-snapshots-to-keep'=1,
+'snapshot.retain-last.minutes'=0,'snapshot.retain-last.nums'=1,
+'new-snapshot-nums-to-merge'=1,
+'snapshot-nums-to-rewrite'=1,
+'compatibility.snapshot-id-inheritance.enabled'=false,
+'commit.manifest-merge.enabled'=true,
+'commit.manifest.min-count-to-merge'=1,
+'commit.manifest.target-size-bytes'=838860800,
+'datafile-nums-to-rewrite'=1,
+'datafile-nums-to-merge'=1,
+'write.target-file-size-bytes'=536870912,
+'write.parquet.page-size-bytes'=64000000,
+'write.distribution-mode'='hash',
+'write.wap.enabled'=false, 
+'write.summary.partition-limit'=0,
+'write.spark.fanout.enabled'=false
+);
+```
+
+ 
+## 2. Flink æ“ä½œ Iceberg
