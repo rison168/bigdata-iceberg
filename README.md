@@ -1849,10 +1849,32 @@ Found 2 items
 -rw-r--r--   3 root hadoop       1182 2022-09-29 16:50 /apps/hive/warehouse/df_test_pt_tbl/data/loc=beijing/00001-6-82e33f5b-a18d-47ee-8bec-1711e6bd7754-00001.parquet
 
 ```
+### 1.20 Structured Streaming 实时写 Iceberg
+
+目前Spark 中 structured streaming只支持实时向iceberg 中写数据，不支持实时从iceberg中读数据。
+
+* kafka topic
+```scala
+# 创建kafka topic
+export KAFKA_OPTS="-Djava.security.auth.login.config=/usr/hdp/2.2.0.0-2041/kafka/config/kafka-client-jaas.conf"
+/usr/hdp/2.2.0.0-2041/kafka/bin/kafka-topics.sh \
+--create \
+--zookeeper tbds-192-168-0-29:2181 \
+--replication-factor 2 \
+--partitions 3 \
+--topic kafka_iceberg_topic
+
+# 生产数据
+export KAFKA_OPTS="-Djava.security.auth.login.config=/usr/hdp/2.2.0.0-2041/kafka/config/kafka-client-jaas.conf"
+/usr/hdp/2.2.0.0-2041/kafka/bin/kafka-console-producer.sh \
+--broker-list tbds-192-168-0-29:6669 \
+--topic kafka_iceberg_topic \
+--producer-property security.protocol=SASL_PLAINTEXT \
+--producer-property sasl.mechanism=PLAIN 
+```
 
 
-
-### 扩展补充
+### 扩展补充 (数据迁移和表属性维护)
 
  * 这里跨集群迁移iceberg数据，如果是hive catalog 方式，可能要修改‘metadata_location’数据，指向对应的hdfs-> /metadata/xx-metadata-xx.json文件路径。
  
