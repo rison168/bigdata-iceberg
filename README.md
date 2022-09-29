@@ -1749,9 +1749,108 @@ spark.sql("drop table if exists hive_catalog.default.update_tbl")
     spark.sql("update hive_catalog.default.update_tbl set age = 100 where age >= 25")
     spark.sql("select * from hive_catalog.default.update_tbl").show()
 ```
-```
+```shell script
+22/09/29 16:18:52 INFO CodeGenerator: Code generated in 28.272872 ms
++---+--------+---+
+| id|    name|age|
++---+--------+---+
+|  1|   rison| 18|
+|  2|zhagnsan| 19|
+|  3|    lisi| 20|
+|  4|     box| 22|
+|  5|    tbds| 23|
+|  6|  seabox| 25|
+|  7|   kafka| 26|
+|  8|    hive| 27|
+|  9| iceberg| 10|
++---+--------+---+
++---+--------+---+
+| id|    name|age|
++---+--------+---+
+|  5|    tbds| 23|
+|  6|  seabox|100|
+|  7|   kafka|100|
+|  8|    hive|100|
+|  9| iceberg| 10|
+|  1|   rison| 18|
+|  2|zhagnsan| 19|
+|  3|    lisi| 20|
+|  4|     box| 22|
++---+--------+---+
 
 ```
+### 1.19 iceberg dataframe api 
+Spark 支持Dataframe Api 方式操作iceberg，但建议使用sql.
+DataFrame 创建 iceberg表 分为创建普通表和分区表，创建分区表需要指定分区列，分区列可以是多个列。
+
+```shell script
+df.write(tbl).create() 相当于 CREATE TABLE AS SELECT ...
+df.write(tbl).replace() 相当于 REPLACE TABLE AS SELECT ...
+df.write(tbl).append() 相当于 INSERT INTO ...
+df.write(tbl).overwritePartitions() 相当于动态 INSERT OVERWRITE ...
+```
+
+```scala
+    //TODO 准备数据
+    val dataList = List[String](
+      "{\"id\":1,\"name\":\"zs\",\"age\":18,\"loc\":\"beijing\"}",
+      "{\"id\":2,\"name\":\"ls\",\"age\":19,\"loc\":\"shanghai\"}",
+      "{\"id\":3,\"name\":\"ww\",\"age\":20,\"loc\":\"beijing\"}",
+      "{\"id\":4,\"name\":\"ml\",\"age\":21,\"loc\":\"shanghai\"}"
+    )
+    import spark.implicits._
+    val dataFrame: DataFrame = spark.read.json(dataList.toDS())
+
+    //TODO 创建普通表df_test_tbl
+    dataFrame.writeTo("hive_catalog.default.df_test_tbl").create()
+    spark.read.table("hive_catalog.default.df_test_tbl").show()
+
+    //TODO 创建分区表df_test_pt_tbl
+    dataFrame
+      .sortWithinPartitions($"loc")
+      .writeTo("hive_catalog.default.df_test_pt_tbl")
+      .partitionedBy($"loc")//这里可以联合分区
+      .create()
+    spark.read.table("hive_catalog.default.df_test_pt_tbl").show()
+    spark.close()
+```
+```sql
+-- 普通表
++---+---+--------+----+
+|age| id|     loc|name|
++---+---+--------+----+
+| 18|  1| beijing|  zs|
+| 19|  2|shanghai|  ls|
+| 20|  3| beijing|  ww|
+| 21|  4|shanghai|  ml|
++---+---+--------+----+
+
+-- 分区表
++---+---+--------+----+
+|age| id|     loc|name|
++---+---+--------+----+
+| 18|  1| beijing|  zs|
+| 19|  2|shanghai|  ls|
+| 20|  3| beijing|  ww|
+| 21|  4|shanghai|  ml|
++---+---+--------+----+
+
+[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/df_test_tbl/data
+Found 2 items
+-rw-r--r--   3 root hadoop       1182 2022-09-29 16:50 /apps/hive/warehouse/df_test_tbl/data/00000-2-acff4c45-aa73-4792-af3d-3113fafa02db-00001.parquet
+-rw-r--r--   3 root hadoop       1182 2022-09-29 16:50 /apps/hive/warehouse/df_test_tbl/data/00001-3-effaffe8-4800-4750-952e-3b1f520142a0-00001.parquet
+[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/df_test_pt_tbl/data
+Found 2 items
+drwxrwxrwx   - root hadoop          0 2022-09-29 16:50 /apps/hive/warehouse/df_test_pt_tbl/data/loc=beijing
+drwxrwxrwx   - root hadoop          0 2022-09-29 16:50 /apps/hive/warehouse/df_test_pt_tbl/data/loc=shanghai
+[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/df_test_pt_tbl/data/loc=beijing
+Found 2 items
+-rw-r--r--   3 root hadoop       1183 2022-09-29 16:50 /apps/hive/warehouse/df_test_pt_tbl/data/loc=beijing/00000-5-d0851266-9a32-456a-92e0-ef9de70724fc-00001.parquet
+-rw-r--r--   3 root hadoop       1182 2022-09-29 16:50 /apps/hive/warehouse/df_test_pt_tbl/data/loc=beijing/00001-6-82e33f5b-a18d-47ee-8bec-1711e6bd7754-00001.parquet
+
+```
+
+
 
 ### 扩展补充
 
@@ -1802,36 +1901,6 @@ SELECT * FROM HIVE.TABLE_PARAMS WHERE TBL_ID=18;
 |     18 | write.target-file-size-bytes                  | 536870912                                                                                                                                                                                                                                                                                                                               |
 |     18 | write.wap.enabled                             | false                                                                                                                                                                                                                                                                                                                                   |
 +--------+-----------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-
-```
-```shell script
-22/09/29 16:18:52 INFO CodeGenerator: Code generated in 28.272872 ms
-+---+--------+---+
-| id|    name|age|
-+---+--------+---+
-|  1|   rison| 18|
-|  2|zhagnsan| 19|
-|  3|    lisi| 20|
-|  4|     box| 22|
-|  5|    tbds| 23|
-|  6|  seabox| 25|
-|  7|   kafka| 26|
-|  8|    hive| 27|
-|  9| iceberg| 10|
-+---+--------+---+
-+---+--------+---+
-| id|    name|age|
-+---+--------+---+
-|  5|    tbds| 23|
-|  6|  seabox|100|
-|  7|   kafka|100|
-|  8|    hive|100|
-|  9| iceberg| 10|
-|  1|   rison| 18|
-|  2|zhagnsan| 19|
-|  3|    lisi| 20|
-|  4|     box| 22|
-+---+--------+---+
 
 ```
 * 添加 TBLPROPERTIES 配置参数
