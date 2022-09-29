@@ -1654,7 +1654,70 @@ hive的动态分区。
 ```
 ### 1.17 iceberg delete from
 Spark3.x 版本之后支持 ‘delete from’ 可以根据指定的where 条件来删除表中数据，
-如果where
+如果where条件匹配Iceberg表的分区数据，Iceberg会修改元数据，
+如果where条件匹配的表的单个行，则iceberg会重写受影响的行所在的数据文件。
+
+```scala
+    spark.sql("drop table if exists hive_catalog.default.delete_tbl")
+    spark.sql(
+      """
+        |create table hive_catalog.default.delete_tbl(
+        |id int,
+        |name string,
+        |age int
+        |) using iceberg
+        |
+        |""".stripMargin
+    )
+    spark.sql(
+      """
+        |insert into hive_catalog.default.delete_tbl
+        |values
+        |(1, 'rison', 18),
+        |(2, 'zhagnsan', 19),
+        |(3, 'lisi', 20),
+        |(4, 'box', 22),
+        |(5, 'tbds', 23),
+        |(6, 'seabox', 25),
+        |(7, 'kafka', 26),
+        |(8, 'hive', 27),
+        |(9, 'iceberg', 10)
+        |""".stripMargin
+    )
+    spark.sql("select * from hive_catalog.default.delete_tbl").show()
+    spark.sql("delete from hive_catalog.default.delete_tbl where age >= 25")
+    spark.sql("select * from hive_catalog.default.delete_tbl").show()
+```
+```shell script
+
++---+--------+---+
+| id|    name|age|
++---+--------+---+
+|  1|   rison| 18|
+|  2|zhagnsan| 19|
+|  3|    lisi| 20|
+|  4|     box| 22|
+|  5|    tbds| 23|
+|  6|  seabox| 25|
+|  7|   kafka| 26|
+|  8|    hive| 27|
+|  9| iceberg| 10|
++---+--------+---+
++---+--------+---+
+| id|    name|age|
++---+--------+---+
+|  5|    tbds| 23|
+|  9| iceberg| 10|
+|  1|   rison| 18|
+|  2|zhagnsan| 19|
+|  3|    lisi| 20|
+|  4|     box| 22|
++---+--------+---+
+
+```
+### 1.18 iceberg update
+
+
 
 ### 扩展补充
 
