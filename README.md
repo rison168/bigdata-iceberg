@@ -1717,7 +1717,41 @@ Spark3.x 版本之后支持 ‘delete from’ 可以根据指定的where 条件�
 ```
 ### 1.18 iceberg update
 
+Spark3.x版本支持了update更新数据操作，可以根据匹配的条件进行数据更新操作。操作如下：
 
+```scala
+spark.sql("drop table if exists hive_catalog.default.update_tbl")
+    spark.sql(
+      """
+        |create table hive_catalog.default.update_tbl(
+        |id int,
+        |name string,
+        |age int
+        |) using iceberg
+        |
+        |""".stripMargin
+    )
+    spark.sql("""
+        |insert into hive_catalog.default.update_tbl
+        |values
+        |(1, 'rison', 18),
+        |(2, 'zhagnsan', 19),
+        |(3, 'lisi', 20),
+        |(4, 'box', 22),
+        |(5, 'tbds', 23),
+        |(6, 'seabox', 25),
+        |(7, 'kafka', 26),
+        |(8, 'hive', 27),
+        |(9, 'iceberg', 10)
+        |""".stripMargin
+    )
+    spark.sql("select * from hive_catalog.default.update_tbl").show()
+    spark.sql("update hive_catalog.default.update_tbl set age = 100 where age >= 25")
+    spark.sql("select * from hive_catalog.default.update_tbl").show()
+```
+```
+
+```
 
 ### 扩展补充
 
@@ -1770,7 +1804,36 @@ SELECT * FROM HIVE.TABLE_PARAMS WHERE TBL_ID=18;
 +--------+-----------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 ```
+```shell script
+22/09/29 16:18:52 INFO CodeGenerator: Code generated in 28.272872 ms
++---+--------+---+
+| id|    name|age|
++---+--------+---+
+|  1|   rison| 18|
+|  2|zhagnsan| 19|
+|  3|    lisi| 20|
+|  4|     box| 22|
+|  5|    tbds| 23|
+|  6|  seabox| 25|
+|  7|   kafka| 26|
+|  8|    hive| 27|
+|  9| iceberg| 10|
++---+--------+---+
++---+--------+---+
+| id|    name|age|
++---+--------+---+
+|  5|    tbds| 23|
+|  6|  seabox|100|
+|  7|   kafka|100|
+|  8|    hive|100|
+|  9| iceberg| 10|
+|  1|   rison| 18|
+|  2|zhagnsan| 19|
+|  3|    lisi| 20|
+|  4|     box| 22|
++---+--------+---+
 
+```
 * 添加 TBLPROPERTIES 配置参数
 添加Iceberg配置参数，可以在建表的时候创建也可以在建表之后修改，主要是用来优化小文件的生成频率
 主要的参数说明：
