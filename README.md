@@ -1859,20 +1859,43 @@ Found 2 items
 export KAFKA_OPTS="-Djava.security.auth.login.config=/usr/hdp/2.2.0.0-2041/kafka/config/kafka-client-jaas.conf"
 /usr/hdp/2.2.0.0-2041/kafka/bin/kafka-topics.sh \
 --create \
---zookeeper tbds-192-168-0-29:2181 \
+--zookeeper tbds-192-168-0-29:2181,tbds-192-168-0-39:2181,tbds-192-168-0-18:2181 \
 --replication-factor 2 \
 --partitions 3 \
---topic kafka_iceberg_topic
+--topic kafka_iceberg
 
 # 生产数据
 export KAFKA_OPTS="-Djava.security.auth.login.config=/usr/hdp/2.2.0.0-2041/kafka/config/kafka-client-jaas.conf"
 /usr/hdp/2.2.0.0-2041/kafka/bin/kafka-console-producer.sh \
---broker-list tbds-192-168-0-29:6669 \
---topic kafka_iceberg_topic \
+--broker-list tbds-192-168-0-29:6669,tbds-192-168-0-30:6669,tbds-192-168-0-31:6669 \
+--topic kafka_iceberg \
 --producer-property security.protocol=SASL_PLAINTEXT \
 --producer-property sasl.mechanism=PLAIN 
+
+# 测试消费
+export KAFKA_OPTS="-Djava.security.auth.login.config=/usr/hdp/2.2.0.0-2041/kafka/config/kafka-client-jaas.conf"
+/usr/hdp/2.2.0.0-2041/kafka/bin/kafka-console-consumer.sh \
+--bootstrap-server tbds-192-168-0-29:6669,tbds-192-168-0-30:6669,tbds-192-168-0-31:6669 \
+--topic kafka_iceberg \
+--consumer-property security.protocol=SASL_PLAINTEXT \
+--consumer-property sasl.mechanism=PLAIN 
+
+# 数据样例
+1,rison,12,beijing
+2,zhangsan,18,shanghai
+3,lisi,19,shenzhen
+
 ```
 
+* 结果集
+```sql
+spark-sql> select * from structure_stream_tbl;
+22/10/02 06:09:18 WARN HiveConf: HiveConf of name hive.mapred.supports.subdirectories does not exist
+3	lisi	19	shenzhen	2022-10-02 06:09:01
+1	rison	12	beijing	2022-10-02 06:08:38
+2	zhangsan	18	shanghai	2022-10-02 06:09:05
+
+```
 
 ### 扩展补充 (数据迁移和表属性维护)
 

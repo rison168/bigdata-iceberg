@@ -40,9 +40,9 @@ object SparkStructuredStreamingApplication {
         |) using iceberg
         |""".stripMargin)
 
-    val checkpointPath = "hdfs://hdfsCluster/iceberg/spark/iceberg_table_checkpoint"
+    val checkpointPath = "hdfs://hdfsCluster/iceberg/spark/iceberg_table_checkpoint/kafka_iceberg"
     val kafkaServers = "tbds-192-168-0-29:6669,tbds-192-168-0-30:6669,tbds-192-168-0-31:6669"
-    val topic = "kafka_iceberg_topic"
+    val topic = "kafka_iceberg"
 
     //TODO 读取kafka数据
     val kafkaDF: DataFrame = spark.readStream
@@ -51,7 +51,7 @@ object SparkStructuredStreamingApplication {
       .option("kafka.security.protocol","SASL_PLAINTEXT")
       .option("kafka.sasl.jaas.config", "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"kafka\" password=\"kafka@Tbds.com\";")
       .option("kafka.sasl.mechanism","PLAIN")
-      .option("auto.offset.reset", "earliest")
+      .option("auto.offset.reset", "latest")
       .option("subscribe", topic)
       .load()
     import spark.implicits._
@@ -65,15 +65,15 @@ object SparkStructuredStreamingApplication {
           data._2 != null && data._2 != ""
         }
       )
-      .map(data => (data._1, data._2 + " " + System.currentTimeMillis()))
+      .map(data => (data._1, data._2 + "," + System.currentTimeMillis() / 1000))
       .toDF("id", "data")
 
     val resFrame: DataFrame = filterDF
-      .withColumn("id", split(col("data"), "\t")(0).cast("Int"))
-      .withColumn("name", split(col("data"), "\t")(1).cast("String"))
-      .withColumn("age", split(col("data"), "\t")(2).cast("Int"))
-      .withColumn("loc", split(col("data"), "\t")(3).cast("String"))
-      .withColumn("ts", from_unixtime(split(col("data"), "\t")(4), "yyyy-MM-dd HH:mm:ss").cast("timestamp"))
+      .withColumn("id", split(col("data"), ",")(0).cast("Int"))
+      .withColumn("name", split(col("data"), ",")(1).cast("string"))
+      .withColumn("age", split(col("data"), ",")(2).cast("Int"))
+      .withColumn("loc", split(col("data"), ",")(3).cast("string"))
+      .withColumn("ts", from_unixtime(split(col("data"), ",")(4).cast("bigint"), "yyyy-MM-dd HH:mm:ss").cast("timestamp"))
       .select("id", "name", "age", "loc","ts")
 
 //    resFrame.writeStream
