@@ -89,7 +89,7 @@ public class FlinkStreamApiWriteIcebergApplication {
             final PartitionSpec spec = PartitionSpec.builderFor(schema).identity("loc").build();
             //指定存储格式
             final ImmutableMap<String, String> props = ImmutableMap.of(TableProperties.DEFAULT_FILE_FORMAT, FileFormat.PARQUET.name());
-            catalogLoader.loadCatalog().newCreateTableTransaction(identifier, schema, spec, props);
+            catalogLoader.loadCatalog().createTable(identifier, schema, spec, props);
         }
         final TableLoader tableLoader = TableLoader.fromCatalog(catalogLoader, identifier);
 
@@ -103,7 +103,7 @@ public class FlinkStreamApiWriteIcebergApplication {
     }
 
     public static Configuration hadoopConfiguration() {
-        final Configuration configuration = new Configuration();
+        Configuration configuration = new Configuration();
         configuration.set("fs.defaultFS", "hdfs://hdfsCluster");
         configuration.addResource(new Path("/usr/hdp/current/hadoop-client/etc/hadoop/hdfs-site.xml"));
         configuration.addResource(new Path("/usr/hdp/current/hadoop-client/etc/hadoop/core-site.xml"));
@@ -120,7 +120,7 @@ public class FlinkStreamApiWriteIcebergApplication {
     }
 
     public static CatalogLoader catalogLoader(String catalog) {
-        final HashMap<String, String> map = new HashMap<>();
+        HashMap<String, String> map = new HashMap<>();
         map.put("type", "iceberg");
         map.put(FlinkCatalogFactory.ICEBERG_CATALOG_TYPE, FlinkCatalogFactory.ICEBERG_CATALOG_TYPE_HIVE);
         map.put(CatalogProperties.WAREHOUSE_LOCATION, "hdfs://apps/hive/warehouse/");

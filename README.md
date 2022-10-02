@@ -2111,7 +2111,7 @@ if (!catalogLoader.loadCatalog().tableExists(identifier)) {
             final PartitionSpec spec = PartitionSpec.builderFor(schema).identity("loc").build();
             //指定存储格式
             final ImmutableMap<String, String> props = ImmutableMap.of(TableProperties.DEFAULT_FILE_FORMAT, FileFormat.PARQUET.name());
-            catalogLoader.loadCatalog().newCreateTableTransaction(identifier, schema, spec, props);
+            catalogLoader.loadCatalog().CreateTable(identifier, schema, spec, props);
         }
         final TableLoader tableLoader = TableLoader.fromCatalog(catalogLoader, identifier);
 
@@ -2123,3 +2123,24 @@ if (!catalogLoader.loadCatalog().tableExists(identifier)) {
                 .build();
 
 ```
+
+结果：
+```shell script
+spark-sql> select * from iceberg_db.stream_iceberg_tbl;
+22/10/02 16:49:21 WARN HiveConf: HiveConf of name hive.mapred.supports.subdirectories does not exist
+1	rison	12	beijing
+2	zhangsan	18	shanghai
+3	lisi	19	shenzhen
+
+[root@tbds-192-168-0-37 ~]# hdfs dfs -ls /apps/hive/warehouse/iceberg_db.db/stream_iceberg_tbl/data/
+Found 3 items
+drwxr-xr-x   - root hadoop          0 2022-10-02 16:48 /apps/hive/warehouse/iceberg_db.db/stream_iceberg_tbl/data/loc=beijing
+drwxr-xr-x   - root hadoop          0 2022-10-02 16:48 /apps/hive/warehouse/iceberg_db.db/stream_iceberg_tbl/data/loc=shanghai
+drwxr-xr-x   - root hadoop          0 2022-10-02 16:48 /apps/hive/warehouse/iceberg_db.db/stream_iceberg_tbl/data/loc=shenzhen
+
+```
+
+需要注意的是：
+* 需要开启checkpoint , checkpoint 时 数据才会commit
+* 读取kafka数据需要转换为RowData/Row对象，才能写数据，默认是写iceberg是追加。
+* 在向iceberg写数据时，需要先定义好catalog、schema配置信息，否则找不到iceberg表。
