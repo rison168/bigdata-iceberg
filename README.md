@@ -2025,5 +2025,101 @@ ALTER TABLE ${catalog.db.table} SET TBLPROPERTIES (
 );
 ```
 
- 
 ## 2. Flink 操作 Iceberg
+
+### 2.1 Flink iceberg 版本信息整合
+目前flink支持 dataStream APi 和 SQL 支持实时读写iceberg，dataStream API 操作 仅仅支持 JAVA API, 建议采用SQL方式。
+* flink 1.13.2
+* iceberg 0.12.1
+* hadoop 3.2.1
+* hive 3.1.2
+
+
+### 2.2 DataStream API实时写入iceberg
+```shell script
+
+# 创建kafka topic
+export KAFKA_OPTS="-Djava.security.auth.login.config=/usr/hdp/2.2.0.0-2041/kafka/config/kafka-client-jaas.conf"
+/usr/hdp/2.2.0.0-2041/kafka/bin/kafka-topics.sh \
+--create \
+--zookeeper tbds-192-168-0-29:2181,tbds-192-168-0-39:2181,tbds-192-168-0-18:2181 \
+--replication-factor 2 \
+--partitions 3 \
+--topic flink_iceberg_topic
+
+# 生产数据
+export KAFKA_OPTS="-Djava.security.auth.login.config=/usr/hdp/2.2.0.0-2041/kafka/config/kafka-client-jaas.conf"
+/usr/hdp/2.2.0.0-2041/kafka/bin/kafka-console-producer.sh \
+--broker-list tbds-192-168-0-29:6669,tbds-192-168-0-30:6669,tbds-192-168-0-31:6669 \
+--topic flink_iceberg_topic \
+--producer-property security.protocol=SASL_PLAINTEXT \
+--producer-property sasl.mechanism=PLAIN 
+
+# 测试消费
+export KAFKA_OPTS="-Djava.security.auth.login.config=/usr/hdp/2.2.0.0-2041/kafka/config/kafka-client-jaas.conf"
+/usr/hdp/2.2.0.0-2041/kafka/bin/kafka-console-consumer.sh \
+--bootstrap-server tbds-192-168-0-29:6669,tbds-192-168-0-30:6669,tbds-192-168-0-31:6669 \
+--topic flink_iceberg_topic \
+--consumer-property security.protocol=SASL_PLAINTEXT \
+--consumer-property sasl.mechanism=PLAIN 
+
+# 数据样例
+1,rison,12,beijing
+2,zhangsan,18,shanghai
+3,lisi,19,shenzhen
+```
+
+```java
+# 关键代码
+ public static Configuration hadoopConfiguration() {
+        final Configuration configuration = new Configuration();
+        configuration.set("fs.defaultFS", "hdfs://hdfsCluster");
+        configuration.addResource(new Path("/usr/hdp/current/hadoop-client/etc/hadoop/hdfs-site.xml"));
+        configuration.addResource(new Path("/usr/hdp/current/hadoop-client/etc/hadoop/core-site.xml"));
+        configuration.addResource(new Path("/usr/hdp/current/hive-client/conf/hive-site.xml"));
+        configuration.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
+        configuration.setBoolean("fs.hdfs.impl.disable.cache", true);
+        UserGroupInformation.setConfiguration(configuration);
+        try {
+            UserGroupInformation.loginUserFromSubject(null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return configuration;
+    }
+
+    public static CatalogLoader catalogLoader(String catalog) {
+        final HashMap<String, String> map = new HashMap<>();
+        map.put("type", "iceberg");
+        map.put(FlinkCatalogFactory.ICEBERG_CATALOG_TYPE, FlinkCatalogFactory.ICEBERG_CATALOG_TYPE_HIVE);
+        map.put(CatalogProperties.WAREHOUSE_LOCATION, "hdfs://apps/hive/warehouse/");
+        map.put(CatalogProperties.URI, "thrift://tbds-192-168-0-18:9083,thrift://tbds-192-168-0-29:9083");
+        map.put(CatalogProperties.CLIENT_POOL_SIZE, "5");
+        return CatalogLoader.hive(catalog, hadoopConfiguration(), map);
+    }
+
+if (!catalogLoader.loadCatalog().tableExists(identifier)) {
+            final Schema schema = new Schema(
+                    Types.NestedField.required(1, "id", Types.IntegerType.get()),
+                    Types.NestedField.required(2, "name", Types.StringType.get()),
+                    Types.NestedField.required(3, "age", Types.IntegerType.get()),
+                    Types.NestedField.required(4, "loc", Types.StringType.get())
+            );
+            //不设置分区
+//            final PartitionSpec spec = PartitionSpec.unpartitioned();
+            //设置分区
+            final PartitionSpec spec = PartitionSpec.builderFor(schema).identity("loc").build();
+            //指定存储格式
+            final ImmutableMap<String, String> props = ImmutableMap.of(TableProperties.DEFAULT_FILE_FORMAT, FileFormat.PARQUET.name());
+            catalogLoader.loadCatalog().newCreateTableTransaction(identifier, schema, spec, props);
+        }
+        final TableLoader tableLoader = TableLoader.fromCatalog(catalogLoader, identifier);
+
+        //TODO 通过DataStream APi 往iceberg 写数据
+        FlinkSink.forRowData(rowDataStream)
+                .tableLoader(tableLoader)
+                //默认false，设置true为覆盖
+                .overwrite(false)
+                .build();
+
+```
