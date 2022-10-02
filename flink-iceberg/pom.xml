@@ -10,6 +10,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>flink-iceberg</artifactId>
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -18,10 +24,16 @@
             <version>1.13-vvr-4.0.7</version>
         </dependency>
         <!-- flink 操作iceberg 依赖-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.iceberg</groupId>-->
+<!--            <artifactId>iceberg-flink-runtime</artifactId>-->
+<!--            <version>${iceberg.version}</version>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.iceberg</groupId>
-            <artifactId>iceberg-flink-runtime</artifactId>
-            <version>${iceberg.version}</version>
+            <artifactId>iceberg-flink-runtime-1.14</artifactId>
+            <version>0.14.1</version>
             <scope>provided</scope>
         </dependency>
         <!-- java 开发 flink 依赖 -->
@@ -63,7 +75,7 @@
             <artifactId>flink-connector-base</artifactId>
             <version>${flink.version}</version>
         </dependency>
-       <!-- flink 读写 hdfs 依赖 -->
+        <!-- flink 读写 hdfs 依赖 -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client</artifactId>
@@ -77,12 +89,12 @@
             <version>${flink.version}</version>
             <scope>provided</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.apache.flink</groupId>-->
-<!--            <artifactId>flink-table</artifactId>-->
-<!--            <version>${flink.version}</version>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.apache.flink</groupId>-->
+        <!--            <artifactId>flink-table</artifactId>-->
+        <!--            <version>${flink.version}</version>-->
+        <!--            <scope>provided</scope>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-common</artifactId>
@@ -97,6 +109,12 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-planner_2.11</artifactId>
             <version>${flink.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.iceberg</groupId>
+            <artifactId>iceberg-spark3</artifactId>
+            <version>0.12.1</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

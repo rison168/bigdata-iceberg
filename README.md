@@ -2170,5 +2170,68 @@ drwxr-xr-x   - root hadoop          0 2022-10-02 16:48 /apps/hive/warehouse/iceb
 再进行高版本测试。
 根据snapshot-id读取数据也存在以上情况。
 
+### 2.3 补充测试其他版本
+* flink 1.14.6（scala 2.12）
+* iceberg 0.14.1
+```
+  <dependency>
+            <groupId>org.apache.iceberg</groupId>
+            <artifactId>iceberg-flink-runtime-1.14</artifactId>
+            <version>0.14.1</version>
+            <scope>provided</scope>
+        </dependency>
+```
+经测试，改版本兼容性高，且支持实时流读没有异常
+以下是官网案例：
 
+#### 2.3.1 Reading with DataStream 
+* Batch Read
+A FLIP-27 based Flink IcebergSource is added in iceberg-flink module for Flink 1.14 or above. The FLIP-27 IcebergSource is currently an experimental feature.
+```java
+StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment();
+TableLoader tableLoader = TableLoader.fromHadoopTable("hdfs://nn:8020/warehouse/path");
+
+IcebergSource<RowData> source = IcebergSource.forRowData()
+    .tableLoader(tableLoader)
+    .assignerFactory(new SimpleSplitAssignerFactory())
+    .build();
+
+DataStream<RowData> batch = env.fromSource(
+    source,
+    WatermarkStrategy.noWatermarks(),
+    "My Iceberg Source",
+    TypeInformation.of(RowData.class));
+
+// Print all records to stdout.
+batch.print();
+
+// Submit and execute this batch read job.
+env.execute("Test Iceberg Batch Read");
+```
+* Streaming read
+This example will start the streaming read from the latest table snapshot (inclusive). Every 60s, it polls Iceberg table to discover new append-only snapshots. CDC read is not supported yet.
+```java
+StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment();
+TableLoader tableLoader = TableLoader.fromHadoopTable("hdfs://nn:8020/warehouse/path");
+
+IcebergSource source = IcebergSource.forRowData()
+    .tableLoader(tableLoader)
+    .assignerFactory(new SimpleSplitAssignerFactory())
+    .streaming(true)
+    .streamingStartingStrategy(StreamingStartingStrategy.INCREMENTAL_FROM_LATEST_SNAPSHOT)
+    .monitorInterval(Duration.ofSeconds(60))
+    .build()
+
+DataStream<RowData> stream = env.fromSource(
+    source,
+    WatermarkStrategy.noWatermarks(),
+    "My Iceberg Source",
+    TypeInformation.of(RowData.class));
+
+// Print all records to stdout.
+stream.print();
+
+// Submit and execute this streaming read job.
+env.execute("Test Iceberg Streaming Read");
+```
 
