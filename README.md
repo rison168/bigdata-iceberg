@@ -2144,3 +2144,31 @@ drwxr-xr-x   - root hadoop          0 2022-10-02 16:48 /apps/hive/warehouse/iceb
 * 需要开启checkpoint , checkpoint 时 数据才会commit
 * 读取kafka数据需要转换为RowData/Row对象，才能写数据，默认是写iceberg是追加。
 * 在向iceberg写数据时，需要先定义好catalog、schema配置信息，否则找不到iceberg表。
+
+### 2.2 DataStream Api 批、流读iceberg
+
+```java
+   //TODO 读取iceberg
+        final DataStream<RowData> data = FlinkSource.forRowData()
+                .env(env)
+                //默认为false,批读，可以设置为true为流读
+                .streaming(true)
+                .tableLoader(tableLoader)
+                .build();
+
+
+ //TODO 读取iceberg
+        final DataStream<RowData> data = FlinkSource.forRowData()
+                .env(env)
+                .startSnapshotId(4987625117265033885L)
+                //默认为false,批读，可以设置为true为流读
+                .streaming(false)
+                .tableLoader(tableLoader)
+                .build();
+```
+经测试：批读数据正常，流读数据 如果源表进行了update/delete操作会报异常，这个要看后续版本有没fix了，以后
+再进行高版本测试。
+根据snapshot-id读取数据也存在以上情况。
+
+
+
