@@ -96,5 +96,5 @@ public class FlinkStreamApiReadIcebergApplication {
 -t yarn-per-job \
 -p 1 \
 -c com.rison.bigdata.FlinkStreamApiReadIcebergApplication \
-/root/flink-dir/flink-iceberg.jar
+/root/flink-dir/original-flink-iceberg.jar
  */
