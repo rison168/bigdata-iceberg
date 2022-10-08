@@ -42,7 +42,7 @@ public class FlinkSqlWriteIcebergApplicationV2 {
 
         tblEnv.executeSql(mysqlCDCSQL);
 
-        //如果表不存在会自动创建库表
+        //如果表不存在会自动创建库表,注意：upsert 操作需要 v2 表支持，同时需要设置主键，否则update会产生重复数据。
         tblEnv.executeSql("create database if not exists iceberg_db");
         String icebergCDCSQL = " CREATE TABLE if not exists iceberg_student (\n" +
                 " id int,\n" +
