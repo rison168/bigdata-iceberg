@@ -12,7 +12,7 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
  * @DATE: 2022/10/6 16:01
  * @PROJECT_NAME: bigdata-iceberg
  **/
-public class FlinkSqlWriteIcebergApplication {
+public class FlinkSqlWriteIcebergApplicationV2 {
     public static void main(String[] args) {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         EnvironmentSettings settings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
@@ -42,27 +42,27 @@ public class FlinkSqlWriteIcebergApplication {
 
         tblEnv.executeSql(mysqlCDCSQL);
 
-        //创建iceberg_catalog
-        String catalogSQL = "CREATE CATALOG iceberg_catalog WITH (\n" +
-                "  'type'='iceberg',\n" +
-                "  'catalog-type'='hive',\n" +
-                "  'uri'='thrift://tbds-192-168-0-18:9083,thrift://tbds-192-168-0-29:9083',\n" +
-                "  'clients'='5',\n" +
-                "  'property-version'='1',\n" +
-                "  'warehouse'='hdfs:///apps/hive/warehouse'\n" +
-                ")";
-        tblEnv.executeSql(catalogSQL);
+        //如果表不存在会自动创建库表
         tblEnv.executeSql("create database if not exists iceberg_db");
-        String icebergCDCSQL = " CREATE TABLE if not exists iceberg_catalog.iceberg_db.iceberg_student (\n" +
+        String icebergCDCSQL = " CREATE TABLE if not exists iceberg_student (\n" +
                 " id int,\n" +
                 " name STRING,\n" +
                 " description STRING,\n" +
                 " PRIMARY KEY (id) NOT ENFORCED\n" +
                 " ) WITH (\n" +
-                " 'format-version'='2'\n" +
+                " 'format-version'='2', \n" +
+                " 'connector'='iceberg', \n" +
+                " 'catalog-name' = 'iceberg_catalog', \n" +
+                " 'type' = 'iceberg', \n" +
+                " 'catalog-type' = 'hive', \n" +
+                " 'uri' = 'thrift://tbds-192-168-0-18:9083,thrift://tbds-192-168-0-29:9083', \n" +
+                " 'clients' = '5', \n" +
+                " 'warehouse'='hdfs:///apps/hive/warehouse', \n" +
+                " 'catalog-table' = 'iceberg_student', \n" +
+                " 'catalog-database' = 'iceberg_db'\n" +
                 " )";
         tblEnv.executeSql(icebergCDCSQL);
-        tblEnv.executeSql("insert into iceberg_catalog.iceberg_db.iceberg_student select * from mysql_student");
+        tblEnv.executeSql("insert into iceberg_student select * from mysql_student");
 
     }
 }
@@ -70,6 +70,6 @@ public class FlinkSqlWriteIcebergApplication {
 /usr/hdp/2.2.0.0-2041/flink/bin/flink run \
 -t yarn-per-job \
 -p 1 \
--c com.rison.bigdata.FlinkSqlWriteIcebergApplication \
+-c com.rison.bigdata.FlinkSqlWriteIcebergApplicationV2 \
 /root/flink-dir/original-flink-iceberg.jar
  */
